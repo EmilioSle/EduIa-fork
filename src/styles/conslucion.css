@@ -137,9 +137,25 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .lista-conclusiones {
+    gap: 2.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .seccion-conclusiones {
-    padding: 4rem 1rem;
+    padding: 3rem 1rem;
+  }
+  
+  .introduccion-conclusiones {
+    margin-bottom: 3rem;
+    padding: 1.5rem;
+  }
+  
+  .lista-conclusiones {
+    gap: 2rem;
+    margin-bottom: 3rem;
   }
 
   .punto-conclusion {
@@ -156,9 +172,33 @@
 
   .icono-conclusion {
     min-width: auto;
+    font-size: 2.5rem;
   }
 
   .mensaje-final {
-    padding: 2rem 1rem;
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .seccion-conclusiones {
+    padding: 2rem 0.75rem;
+  }
+  
+  .punto-conclusion {
+    padding: 1.25rem;
+  }
+  
+  .icono-conclusion {
+    font-size: 2rem;
+  }
+  
+  .mensaje-final {
+    padding: 1.5rem 1rem;
+    border-radius: 15px;
+  }
+  
+  .firma {
+    padding-top: 1.5rem;
   }
 }
