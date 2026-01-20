@@ -22,6 +22,8 @@ body {
   color: var(--color-texto);
   line-height: 1.6;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .contenedor-principal {
@@ -107,8 +109,29 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+}
+
 @media (max-width: 768px) {
   body {
     font-size: 14px;
+  }
+  
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .tooltip-grafico {
+    font-size: 11px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
   }
 }

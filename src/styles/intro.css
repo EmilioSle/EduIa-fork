@@ -94,6 +94,52 @@
   animation: bounce 2s ease-in-out infinite;
 }
 
+/* Responsive Intro */
+@media (max-width: 768px) {
+  .seccion-intro {
+    padding: 1.5rem 1rem;
+  }
+  
+  .titulo-principal {
+    margin-bottom: 0.75rem;
+  }
+  
+  .subtitulo {
+    margin-bottom: 2rem;
+  }
+  
+  .parrafo-destacado {
+    margin-bottom: 1rem;
+  }
+  
+  .texto-intro p {
+    margin-bottom: 1rem;
+  }
+  
+  .cita-intro {
+    padding: 1rem;
+    margin: 1.5rem 0 !important;
+  }
+  
+  .indicador-scroll {
+    margin-top: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .seccion-intro {
+    padding: 1rem 0.75rem;
+  }
+  
+  .indicador-scroll span {
+    font-size: 1.5rem;
+  }
+  
+  .titulo-principal {
+    letter-spacing: -1px;
+  }
+}
+
 @keyframes bounce {
   0%, 20%, 50%, 80%, 100% {
     transform: translateY(0);
