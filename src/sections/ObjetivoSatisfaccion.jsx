@@ -44,7 +44,25 @@ const ObjetivoSatisfaccion = ({ datos }) => {
       });
     }, seccionRef);
 
-    return () => ctx.revert();
+    // Listener para redimensionamiento de ventana
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (graficosCreados) {
+          crearGraficoScatter();
+          crearGraficoBarras();
+        }
+      }, 250);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      ctx.revert();
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
   }, [datos, graficosCreados]);
 
   const crearGraficoScatter = () => {
@@ -57,15 +75,27 @@ const ObjetivoSatisfaccion = ({ datos }) => {
       (d) => d.duracionMinutos > 0 && d.satisfaccion > 0
     );
 
-    const margin = { top: 30, right: 30, bottom: 70, left: 70 };
-    const width = 600 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    // Configuración responsiva
+    const containerWidth = graficoScatterRef.current.clientWidth;
+    const isMobile = window.innerWidth < 768;
+    const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+    
+    const margin = isMobile 
+      ? { top: 30, right: 25, bottom: 70, left: 50 }
+      : isTablet
+      ? { top: 30, right: 30, bottom: 70, left: 60 }
+      : { top: 30, right: 30, bottom: 70, left: 70 };
+    
+    const width = Math.max(300, containerWidth - 40) - margin.left - margin.right;
+    const height = isMobile ? 350 : isTablet ? 380 : 400;
 
     const svg = d3
       .select(graficoScatterRef.current)
       .append("svg")
-      .attr("width", width + margin.left + margin.right)
+      .attr("width", "100%")
       .attr("height", height + margin.top + margin.bottom)
+      .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -179,15 +209,27 @@ const ObjetivoSatisfaccion = ({ datos }) => {
       })
     ).sort((a, b) => a.nivel.localeCompare(b.nivel));
 
-    const margin = { top: 40, right: 40, bottom: 90, left: 80 };
-    const width = 700 - margin.left - margin.right;
-    const height = 450 - margin.top - margin.bottom;
+    // Configuración responsiva
+    const containerWidth = graficoBarrasRef.current.clientWidth;
+    const isMobile = window.innerWidth < 768;
+    const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+    
+    const margin = isMobile 
+      ? { top: 30, right: 20, bottom: 90, left: 60 }
+      : isTablet
+      ? { top: 35, right: 30, bottom: 90, left: 70 }
+      : { top: 40, right: 40, bottom: 90, left: 80 };
+    
+    const width = Math.max(300, containerWidth - 40) - margin.left - margin.right;
+    const height = isMobile ? 350 : isTablet ? 400 : 450;
 
     const svg = d3
       .select(graficoBarrasRef.current)
       .append("svg")
-      .attr("width", width + margin.left + margin.right)
+      .attr("width", "100%")
       .attr("height", height + margin.top + margin.bottom)
+      .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
