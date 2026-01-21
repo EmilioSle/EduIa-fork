@@ -91,7 +91,8 @@ body {
 }
 
 /* Tooltip para gráficos */
-.tooltip-grafico {
+.tooltip-grafico,
+.tooltip-bar-chart {
   position: absolute;
   background: rgba(20, 27, 61, 0.95);
   border: 2px solid var(--color-primario);
@@ -102,10 +103,23 @@ body {
   z-index: 1000;
   box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
   backdrop-filter: blur(10px);
+  transition: opacity 0.2s ease;
 }
 
-.tooltip-grafico strong {
+.tooltip-grafico strong,
+.tooltip-bar-chart strong {
   color: var(--color-primario);
+}
+
+/* Estilos para componentes de gráficos optimizados */
+.bar-chart-container {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+
+.grafico-barras-optimizado {
+  margin: 2rem 0;
 }
 
 /* Responsive */
@@ -124,7 +138,8 @@ body {
     width: 6px;
   }
   
-  .tooltip-grafico {
+  .tooltip-grafico,
+  .tooltip-bar-chart {
     font-size: 11px;
     padding: 8px;
   }

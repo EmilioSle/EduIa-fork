@@ -85,9 +85,9 @@ const ObjetivoReutilizacion = ({ datos }) => {
     const datosValidos = datos.filter((d) => d.satisfaccion > 0);
     
     const rangos = [
-      { min: 0, max: 2, label: "Baja (0-1.9)" },
-      { min: 2, max: 3.5, label: "Media (2-3.4)" },
-      { min: 3.5, max: 5.1, label: "Alta (3.5-5)" },
+      { min: 0, max: 2, label: "Baja", sublabel: "0-1.9" },
+      { min: 2, max: 3.5, label: "Media", sublabel: "2-3.4" },
+      { min: 3.5, max: 5.1, label: "Alta", sublabel: "3.5-5" },
     ];
 
     const datosPorRango = rangos.map((rango, index) => {
@@ -102,28 +102,29 @@ const ObjetivoReutilizacion = ({ datos }) => {
       const total = enRango.length;
       return {
         rango: rango.label,
+        sublabel: rango.sublabel,
         porcentaje: total > 0 ? (reutilizan / total) * 100 : 0,
         total,
         reutilizan,
       };
     });
 
-    // Configuración responsiva
+    // Configuración responsiva mejorada
     const containerWidth = graficoSatisfaccionRef.current.clientWidth;
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
     const margin = isMobile 
-      ? { top: 30, right: 20, bottom: 100, left: 60 }
+      ? { top: 30, right: 20, bottom: 100, left: 70 }
       : isTablet
-      ? { top: 35, right: 30, bottom: 90, left: 70 }
-      : { top: 40, right: 40, bottom: 90, left: 80 };
+      ? { top: 35, right: 30, bottom: 90, left: 80 }
+      : { top: 40, right: 40, bottom: 90, left: 90 };
     
-    // Desktop: tamaño fijo original, móvil/tablet: responsivo
+    // Tamaño mejorado
     const width = isMobile || isTablet 
       ? Math.max(300, containerWidth - 40) - margin.left - margin.right
-      : 700 - margin.left - margin.right;
-    const height = isMobile ? 350 : isTablet ? 400 : 450;
+      : 800 - margin.left - margin.right;
+    const height = isMobile ? 400 : isTablet ? 450 : 500;
 
     const svg = d3
       .select(graficoSatisfaccionRef.current)
@@ -135,70 +136,95 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    // Escalas mejoradas
     const x = d3
       .scaleBand()
       .range([0, width])
       .domain(datosPorRango.map((d) => d.rango))
-      .padding(0.3);
+      .padding(0.2);
 
-    const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+    const y = d3.scaleLinear()
+      .domain([0, 100])
+      .range([height, 0])
+      .nice();
 
-    svg
+    // Escala de color dinámica según porcentaje
+    const colorScale = d3.scaleSequential()
+      .domain([0, 100])
+      .interpolator(d3.interpolatePlasma);
+
+    // Agregar grid horizontal
+    svg.append("g")
+      .attr("class", "grid")
+      .attr("opacity", 0.1)
+      .call(
+        d3.axisLeft(y)
+          .tickSize(-width)
+          .tickFormat("")
+      )
+      .selectAll("line")
+      .style("stroke", "#fff");
+
+    // Eje X mejorado
+    const xAxis = svg
       .append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x))
-      .selectAll("text")
+      .call(d3.axisBottom(x).tickSizeOuter(0));
+
+    xAxis.selectAll("text")
       .style("text-anchor", "middle")
-      .style("font-size", "13px")
+      .style("font-size", isMobile ? "13px" : "15px")
+      .style("font-weight", "700")
       .style("fill", "#fff");
 
-    svg.append("g")
-      .call(d3.axisLeft(y).ticks(10))
-      .selectAll("text")
+    xAxis.selectAll("line, path")
+      .style("stroke", "#fff")
+      .style("stroke-width", 2);
+
+    // Eje Y mejorado
+    const yAxis = svg.append("g")
+      .call(d3.axisLeft(y).ticks(10).tickSizeOuter(0));
+
+    yAxis.selectAll("text")
       .style("font-size", "13px")
+      .style("font-weight", "500")
       .style("fill", "#fff");
 
+    yAxis.selectAll("line, path")
+      .style("stroke", "#fff")
+      .style("stroke-width", 2);
+
+    // Etiquetas de ejes
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", height + 50)
+      .attr("y", height + 60)
       .style("text-anchor", "middle")
-      .style("font-size", "14px")
-      .style("fill", "#fff")
+      .style("font-size", "16px")
+      .style("font-weight", "600")
+      .style("fill", "#00d9ff")
       .text("Nivel de Satisfacción");
 
     svg
       .append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", -50)
+      .attr("y", -60)
       .attr("x", -height / 2)
       .style("text-anchor", "middle")
-      .style("font-size", "14px")
-      .style("fill", "#fff")
+      .style("font-size", "16px")
+      .style("font-weight", "600")
+      .style("fill", "#00d9ff")
       .text("% de Reutilización");
 
-    // Crear barras con gradiente único
-    const gradientId = "barGradientSatisfaccion";
-    const gradient = svg
-      .append("defs")
-      .append("linearGradient")
-      .attr("id", gradientId)
-      .attr("x1", "0%")
-      .attr("x2", "0%")
-      .attr("y1", "100%")
-      .attr("y2", "0%");
-
-    gradient.append("stop").attr("offset", "0%").attr("stop-color", "#ff0066");
-    gradient.append("stop").attr("offset", "100%").attr("stop-color", "#ffaa00");
-
-    // Crear tooltip
+    // Crear tooltip mejorado
     const tooltip = d3
       .select(graficoSatisfaccionRef.current)
       .append("div")
       .attr("class", "tooltip-grafico")
       .style("opacity", 0);
 
-    svg
+    // Barras con mejor diseño
+    const barras = svg
       .selectAll(".barra")
       .data(datosPorRango)
       .enter()
@@ -208,35 +234,52 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .attr("width", x.bandwidth())
       .attr("y", height)
       .attr("height", 0)
-      .attr("fill", `url(#${gradientId})`)
-      .attr("opacity", 0.85)
+      .attr("fill", d => colorScale(d.porcentaje))
+      .attr("rx", 4)
+      .attr("ry", 4)
       .style("cursor", "pointer")
       .on("mouseenter", function (event, d) {
-        d3.select(this).transition().duration(200).attr("opacity", 1);
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr("opacity", 1)
+          .attr("y", y(d.porcentaje) - 5)
+          .attr("height", height - y(d.porcentaje) + 5);
         
         tooltip.transition().duration(200).style("opacity", 0.95);
         tooltip
           .html(
-            `<strong>${d.rango}</strong><br/>
-             Total estudiantes: ${d.total}<br/>
-             Reutilizan: ${d.reutilizan} (${d.porcentaje.toFixed(1)}%)<br/>
-             No reutilizan: ${d.total - d.reutilizan}`
+            `<strong>Satisfacción ${d.rango}</strong> (${d.sublabel})<br/>
+             Total estudiantes: <strong>${d.total}</strong><br/>
+             Reutilizan: <strong>${d.reutilizan}</strong> (${d.porcentaje.toFixed(1)}%)<br/>
+             No reutilizan: <strong>${d.total - d.reutilizan}</strong><br/>
+             <small style="color: ${colorScale(d.porcentaje)}">■</small> Tasa de adopción`
           )
           .style("left", event.pageX + 10 + "px")
           .style("top", event.pageY - 28 + "px");
       })
-      .on("mouseleave", function () {
-        d3.select(this).transition().duration(200).attr("opacity", 0.85);
+      .on("mouseleave", function (event, d) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr("opacity", 0.85)
+          .attr("y", y(d.porcentaje))
+          .attr("height", height - y(d.porcentaje));
+        
         tooltip.transition().duration(200).style("opacity", 0);
-      })
+      });
+
+    // Animación de entrada suave
+    barras
+      .attr("opacity", 0.85)
       .transition()
-      .duration(1800)
-      .delay((d, i) => i * 200)
+      .duration(1400)
+      .delay((d, i) => i * 150)
       .attr("y", (d) => y(d.porcentaje))
       .attr("height", (d) => height - y(d.porcentaje))
-      .ease(d3.easeElasticOut.amplitude(1).period(0.5));
+      .ease(d3.easeCubicOut);
 
-    // Valores
+    // Valores con mejor estilo
     svg
       .selectAll(".etiqueta-valor")
       .data(datosPorRango)
@@ -246,15 +289,67 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .attr("x", (d) => x(d.rango) + x.bandwidth() / 2)
       .attr("y", height)
       .attr("text-anchor", "middle")
-      .style("font-size", "14px")
-      .style("font-weight", "bold")
+      .style("font-size", isMobile ? "13px" : "16px")
+      .style("font-weight", "700")
       .style("fill", "#fff")
       .style("opacity", 0)
+      .style("text-shadow", "0 0 5px rgba(0,0,0,0.8)")
       .text((d) => `${d.porcentaje.toFixed(1)}%`)
       .transition()
+      .duration(800)
+      .delay((d, i) => i * 150 + 700)
+      .attr("y", (d) => y(d.porcentaje) - 12)
+      .style("opacity", 1);
+
+    // Agregar sub-etiquetas (rangos)
+    svg
+      .selectAll(".sub-etiqueta")
+      .data(datosPorRango)
+      .enter()
+      .append("text")
+      .attr("class", "sub-etiqueta")
+      .attr("x", (d) => x(d.rango) + x.bandwidth() / 2)
+      .attr("y", height + 20)
+      .attr("text-anchor", "middle")
+      .style("font-size", isMobile ? "10px" : "12px")
+      .style("font-weight", "500")
+      .style("fill", "#999")
+      .style("opacity", 0)
+      .text((d) => d.sublabel)
+      .transition()
+      .duration(600)
+      .delay(1600)
+      .style("opacity", 0.8);
+
+    // Línea de referencia en 50%
+    const referenciaLinea = 50;
+    
+    svg.append("line")
+      .attr("x1", 0)
+      .attr("x2", width)
+      .attr("y1", y(referenciaLinea))
+      .attr("y2", y(referenciaLinea))
+      .attr("stroke", "#ff0066")
+      .attr("stroke-width", 2.5)
+      .attr("stroke-dasharray", "8,4")
+      .attr("opacity", 0)
+      .transition()
       .duration(1000)
-      .delay((d, i) => i * 200 + 800)
-      .attr("y", (d) => y(d.porcentaje) - 10)
+      .delay(1400)
+      .attr("opacity", 0.7);
+
+    svg.append("text")
+      .attr("x", width - 5)
+      .attr("y", y(referenciaLinea) - 8)
+      .attr("text-anchor", "end")
+      .style("font-size", "12px")
+      .style("font-weight", "600")
+      .style("fill", "#ff0066")
+      .style("opacity", 0)
+      .text(`Meta: ${referenciaLinea}%`)
+      .transition()
+      .duration(800)
+      .delay(1600)
       .style("opacity", 1);
   };
 
@@ -279,25 +374,26 @@ const ObjetivoReutilizacion = ({ datos }) => {
         resultado,
         porcentaje: (stats.reutilizan / stats.total) * 100,
         total: stats.total,
+        reutilizan: stats.reutilizan,
       })
     ).sort((a, b) => b.porcentaje - a.porcentaje);
 
-    // Configuración responsiva
+    // Configuración responsiva mejorada
     const containerWidth = graficoResultadoRef.current.clientWidth;
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
     const margin = isMobile 
-      ? { top: 30, right: 20, bottom: 120, left: 60 }
+      ? { top: 30, right: 20, bottom: 140, left: 70 }
       : isTablet
-      ? { top: 35, right: 30, bottom: 120, left: 70 }
-      : { top: 40, right: 40, bottom: 120, left: 80 };
+      ? { top: 35, right: 30, bottom: 130, left: 80 }
+      : { top: 40, right: 40, bottom: 120, left: 90 };
     
-    // Desktop: tamaño fijo original, móvil/tablet: responsivo
+    // Tamaño mejorado
     const width = isMobile || isTablet 
       ? Math.max(300, containerWidth - 40) - margin.left - margin.right
-      : 700 - margin.left - margin.right;
-    const height = isMobile ? 350 : isTablet ? 400 : 450;
+      : 850 - margin.left - margin.right;
+    const height = isMobile ? 400 : isTablet ? 450 : 520;
 
     const svg = d3
       .select(graficoResultadoRef.current)
@@ -309,61 +405,105 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    // Escalas mejoradas
     const x = d3
       .scaleBand()
       .range([0, width])
       .domain(datosArray.map((d) => d.resultado))
-      .padding(0.3);
+      .padding(0.18);
 
-    const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+    const y = d3.scaleLinear()
+      .domain([0, 100])
+      .range([height, 0])
+      .nice();
 
-    svg
+    // Escala de color con gradiente cálido
+    const colorScale = d3.scaleSequential()
+      .domain([0, 100])
+      .interpolator(d3.interpolateWarm);
+
+    // Agregar grid horizontal
+    svg.append("g")
+      .attr("class", "grid")
+      .attr("opacity", 0.1)
+      .call(
+        d3.axisLeft(y)
+          .tickSize(-width)
+          .tickFormat("")
+      )
+      .selectAll("line")
+      .style("stroke", "#fff");
+
+    // Eje X mejorado con mejor manejo de texto
+    const xAxis = svg
       .append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x))
-      .selectAll("text")
+      .call(d3.axisBottom(x).tickSizeOuter(0));
+
+    xAxis.selectAll("text")
       .attr("transform", "rotate(-45)")
       .style("text-anchor", "end")
-      .style("font-size", "13px")
+      .style("font-size", isMobile ? "11px" : "13px")
+      .style("font-weight", "600")
       .style("fill", "#fff")
       .attr("dx", "-0.5em")
       .attr("dy", "0.15em")
       .each(function(d) {
-        // Truncar texto si es muy largo
         const texto = d;
-        if (texto.length > 18) {
-          d3.select(this).text(texto.substring(0, 16) + "...");
+        const maxLength = isMobile ? 15 : isTablet ? 20 : 25;
+        if (texto.length > maxLength) {
+          d3.select(this).text(texto.substring(0, maxLength - 3) + "...");
         }
       });
 
-    svg.append("g").call(d3.axisLeft(y).ticks(10));
+    xAxis.selectAll("line, path")
+      .style("stroke", "#fff")
+      .style("stroke-width", 2);
 
+    // Eje Y mejorado
+    const yAxis = svg.append("g")
+      .call(d3.axisLeft(y).ticks(10).tickSizeOuter(0));
+
+    yAxis.selectAll("text")
+      .style("font-size", "13px")
+      .style("font-weight", "500")
+      .style("fill", "#fff");
+
+    yAxis.selectAll("line, path")
+      .style("stroke", "#fff")
+      .style("stroke-width", 2);
+
+    // Etiquetas de ejes
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", height + 85)
+      .attr("y", height + 100)
       .style("text-anchor", "middle")
-      .style("font-size", "14px")
-      .style("fill", "#fff")
+      .style("font-size", "16px")
+      .style("font-weight", "600")
+      .style("fill", "#00d9ff")
       .text("Resultado Final");
 
     svg
       .append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", -50)
+      .attr("y", -60)
       .attr("x", -height / 2)
       .style("text-anchor", "middle")
-      .style("font-size", "14px")
-      .style("fill", "#fff")
+      .style("font-size", "16px")
+      .style("font-weight", "600")
+      .style("fill", "#00d9ff")
       .text("% de Reutilización");
 
-    // Color scale
-    const colorScale = d3
-      .scaleLinear()
-      .domain([0, d3.max(datosArray, (d) => d.porcentaje)])
-      .range(["#00d9ff", "#00ff9f"]);
+    // Crear tooltip mejorado
+    const tooltip = d3
+      .select(graficoResultadoRef.current)
+      .append("div")
+      .attr("class", "tooltip-grafico")
+      .style("opacity", 0);
 
-    svg
+    // Barras con mejor diseño
+    const barras = svg
       .selectAll(".barra")
       .data(datosArray)
       .enter()
@@ -374,15 +514,54 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .attr("y", height)
       .attr("height", 0)
       .attr("fill", (d) => colorScale(d.porcentaje))
+      .attr("rx", 4)
+      .attr("ry", 4)
+      .style("cursor", "pointer")
+      .on("mouseenter", function(event, d) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr("opacity", 1)
+          .attr("y", y(d.porcentaje) - 5)
+          .attr("height", height - y(d.porcentaje) + 5)
+          .style("filter", "drop-shadow(0 8px 12px rgba(0,0,0,0.5))");
+        
+        tooltip.transition().duration(200).style("opacity", 0.95);
+        tooltip
+          .html(
+            `<strong>${d.resultado}</strong><br/>
+             Total estudiantes: <strong>${d.total}</strong><br/>
+             Reutilizan: <strong>${d.reutilizan}</strong> (${d.porcentaje.toFixed(1)}%)<br/>
+             No reutilizan: <strong>${d.total - d.reutilizan}</strong><br/>
+             <small style="color: ${colorScale(d.porcentaje)}">■</small> Tasa de éxito`
+          )
+          .style("left", event.pageX + 10 + "px")
+          .style("top", event.pageY - 28 + "px");
+      })
+      .on("mouseleave", function(event, d) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr("opacity", 0.85)
+          .attr("y", y(d.porcentaje))
+          .attr("height", height - y(d.porcentaje))
+          .style("filter", "drop-shadow(0 4px 6px rgba(0,0,0,0.3))");
+        
+        tooltip.transition().duration(200).style("opacity", 0);
+      });
+
+    // Animación de entrada suave
+    barras
       .attr("opacity", 0.85)
+      .style("filter", "drop-shadow(0 4px 6px rgba(0,0,0,0.3))")
       .transition()
-      .duration(1500)
-      .delay((d, i) => i * 150)
+      .duration(1400)
+      .delay((d, i) => i * 120)
       .attr("y", (d) => y(d.porcentaje))
       .attr("height", (d) => height - y(d.porcentaje))
       .ease(d3.easeCubicOut);
 
-    // Valores
+    // Valores con mejor estilo
     svg
       .selectAll(".etiqueta-valor")
       .data(datosArray)
@@ -392,15 +571,67 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .attr("x", (d) => x(d.resultado) + x.bandwidth() / 2)
       .attr("y", height)
       .attr("text-anchor", "middle")
-      .style("font-size", "12px")
-      .style("font-weight", "bold")
+      .style("font-size", isMobile ? "12px" : "14px")
+      .style("font-weight", "700")
       .style("fill", "#fff")
       .style("opacity", 0)
-      .text((d) => `${d.porcentaje.toFixed(0)}%`)
+      .style("text-shadow", "0 0 5px rgba(0,0,0,0.8)")
+      .text((d) => `${d.porcentaje.toFixed(1)}%`)
+      .transition()
+      .duration(800)
+      .delay((d, i) => i * 120 + 700)
+      .attr("y", (d) => y(d.porcentaje) - 12)
+      .style("opacity", 1);
+
+    // Destacar la barra con mayor porcentaje
+    const maxPorcentaje = d3.max(datosArray, d => d.porcentaje);
+    const mejorResultado = datosArray.find(d => d.porcentaje === maxPorcentaje);
+    
+    if (mejorResultado) {
+      svg.append("text")
+        .attr("x", x(mejorResultado.resultado) + x.bandwidth() / 2)
+        .attr("y", y(mejorResultado.porcentaje) - 35)
+        .attr("text-anchor", "middle")
+        .style("font-size", "12px")
+        .style("font-weight", "700")
+        .style("fill", "#00ff9f")
+        .style("opacity", 0)
+        .text("⭐ Mayor éxito")
+        .transition()
+        .duration(800)
+        .delay(1600)
+        .style("opacity", 1);
+    }
+
+    // Línea de referencia en 70% (alto rendimiento)
+    const referenciaLinea = 70;
+    
+    svg.append("line")
+      .attr("x1", 0)
+      .attr("x2", width)
+      .attr("y1", y(referenciaLinea))
+      .attr("y2", y(referenciaLinea))
+      .attr("stroke", "#00ff9f")
+      .attr("stroke-width", 2.5)
+      .attr("stroke-dasharray", "8,4")
+      .attr("opacity", 0)
       .transition()
       .duration(1000)
-      .delay((d, i) => i * 150 + 700)
-      .attr("y", (d) => y(d.porcentaje) - 10)
+      .delay(1400)
+      .attr("opacity", 0.6);
+
+    svg.append("text")
+      .attr("x", width - 5)
+      .attr("y", y(referenciaLinea) - 8)
+      .attr("text-anchor", "end")
+      .style("font-size", "12px")
+      .style("font-weight", "600")
+      .style("fill", "#00ff9f")
+      .style("opacity", 0)
+      .text(`Alto rendimiento: ${referenciaLinea}%`)
+      .transition()
+      .duration(800)
+      .delay(1600)
       .style("opacity", 1);
 
     setGraficosCreados(true);

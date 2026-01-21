@@ -53,8 +53,6 @@
   justify-content: center;
   color: var(--color-primario);
 }
-  filter: grayscale(0.3);
-}
 
 .numero-stat {
   font-size: clamp(2.5rem, 5vw, 4rem);
