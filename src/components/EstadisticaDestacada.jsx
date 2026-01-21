@@ -40,7 +40,9 @@ const EstadisticaDestacada = ({ items }) => {
             ref={(el) => (itemsRef.current[index] = el)}
             className="tarjeta-estadistica"
           >
-            <div className="icono-stat">{item.icono}</div>
+            <div className="icono-stat">
+              {typeof item.icono === "string" ? item.icono : <item.icono size={40} strokeWidth={1.5} />}
+            </div>
             <div className="numero-stat">{item.numero}</div>
             <div className="etiqueta-stat">{item.etiqueta}</div>
             {item.descripcion && (

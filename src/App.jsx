@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Lenis from "@studio-freight/lenis";
+import { Users, Clock, Star, RotateCw } from "lucide-react";
 import { cargarDatos } from "./services/servicioDatos";
 import Intro from "./sections/Intro";
 import TransicionNarrativa from "./components/TransicionNarrativa";
@@ -92,25 +93,25 @@ const App = () => {
         <EstadisticaDestacada
           items={[
             {
-              icono: "👥",
+              icono: Users,
               numero: estadisticasGenerales.totalSesiones,
               etiqueta: "Sesiones Analizadas",
               descripcion: "Estudiantes reales compartiendo su experiencia",
             },
             {
-              icono: "⏱️",
+              icono: Clock,
               numero: `${estadisticasGenerales.duracionPromedio} min`,
               etiqueta: "Duración Promedio",
               descripcion: "Tiempo invertido por sesión",
             },
             {
-              icono: "⭐",
+              icono: Star,
               numero: `${estadisticasGenerales.satisfaccionPromedio}/5`,
               etiqueta: "Satisfacción Media",
               descripcion: "Nivel general de satisfacción",
             },
             {
-              icono: "🔄",
+              icono: RotateCw,
               numero: `${estadisticasGenerales.porcentajeReutilizacion}%`,
               etiqueta: "Volverían a Usar",
               descripcion: "Estudiantes que confían en la IA",

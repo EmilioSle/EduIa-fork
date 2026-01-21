@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as d3 from "d3";
+import { BarChart3, Lightbulb, Brain } from "lucide-react";
 import imagen2 from "../assets/images/imagen2.png";
 import imagen3 from "../assets/images/imagen3.png";
 import { OBJETIVOS_ANALITICOS } from "../utils/objetivos";
@@ -419,7 +420,7 @@ const ObjetivoUso = ({ datos }) => {
           <div ref={graficoDonutRef} className="grafico"></div>
           <img src={imagen3} alt="Propósito de uso" className="imagen-grafico" />
           <p className="explicacion-grafico">
-            💡 <strong>Una revelación interesante:</strong> Aunque muchos piensan 
+            <Lightbulb className="icono-inline" size={20} strokeWidth={1.5} /> <strong>Una revelación interesante:</strong> Aunque muchos piensan 
             que la IA solo se usa para escribir ensayos, los datos muestran una 
             diversidad sorprendente. Desde estudiar conceptos difíciles hasta 
             depurar código, la IA se ha convertido en un asistente multifacético.
@@ -427,7 +428,7 @@ const ObjetivoUso = ({ datos }) => {
         </div>
 
         <div className="conclusion-seccion">
-          <div className="icono-conclusion-seccion">💭</div>
+          <Brain className="icono-conclusion-seccion" size={40} strokeWidth={1.5} />
           <p className="texto-conclusion">
             <strong>Insight Clave:</strong> La IA no está reemplazando el aprendizaje, 
             está democratizándolo. Estudiantes de todos los niveles la usan como un 

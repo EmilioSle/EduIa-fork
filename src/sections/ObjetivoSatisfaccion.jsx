@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as d3 from "d3";
+import { Clock, Target, Search } from "lucide-react";
 import imagen4 from "../assets/images/imagen4.png";
 import imagen5 from "../assets/images/imagen5.png";
 import { OBJETIVOS_ANALITICOS } from "../utils/objetivos";
@@ -348,7 +349,7 @@ const ObjetivoSatisfaccion = ({ datos }) => {
           <div ref={graficoScatterRef} className="grafico"></div>
           <img src={imagen4} alt="Relación duración y satisfacción" className="imagen-grafico imagen-grafico-pequena" />
           <p className="explicacion-grafico">
-            ⏰ <strong>Descubrimiento contraintuitivo:</strong> Las sesiones más 
+            <Clock className="icono-inline" size={20} strokeWidth={1.5} /> <strong>Descubrimiento contraintuitivo:</strong> Las sesiones más 
             largas no garantizan mayor satisfacción. De hecho, la relación es más 
             compleja. Los estudiantes más satisfechos tienden a tener sesiones 
             enfocadas y eficientes, no necesariamente las más largas. ¿La lección? 
@@ -361,7 +362,7 @@ const ObjetivoSatisfaccion = ({ datos }) => {
           <div ref={graficoBarrasRef} className="grafico"></div>
           <img src={imagen5} alt="Nivel de asistencia y satisfacción" className="imagen-grafico" />
           <p className="explicacion-grafico">
-            🎯 <strong>La correlación que importa:</strong> Cuando la IA realmente 
+            <Target className="icono-inline" size={20} strokeWidth={1.5} /> <strong>La correlación que importa:</strong> Cuando la IA realmente 
             ayuda (niveles de asistencia altos), la satisfacción se dispara. Esto 
             valida algo fundamental: los estudiantes no buscan que la IA haga su 
             trabajo, buscan que los ayude a hacerlo mejor.
@@ -369,7 +370,7 @@ const ObjetivoSatisfaccion = ({ datos }) => {
         </div>
 
         <div className="conclusion-seccion">
-          <div className="icono-conclusion-seccion">🔍</div>
+          <Search className="icono-conclusion-seccion" size={40} strokeWidth={1.5} />
           <p className="texto-conclusion">
             <strong>La Verdad Revelada:</strong> La satisfacción no se trata de 
             interacciones largas o respuestas rápidas. Se trata de asistencia 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as d3 from "d3";
+import { Search, CheckCircle, Target } from "lucide-react";
 import imagen7 from "../assets/images/imagen7.png";
 import imagen6 from "../assets/images/imagen6.png";
 import { OBJETIVOS_ANALITICOS } from "../utils/objetivos";
@@ -423,7 +424,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
           <div ref={graficoSatisfaccionRef} className="grafico"></div>
           <img src={imagen6} alt="Satisfacción vs Reutilización" className="imagen-grafico" />
           <p className="explicacion-grafico">
-            🔍 <strong>Resultado contraintuitivo:</strong> La reutilización se mantiene 
+            <Search className="icono-inline" size={20} strokeWidth={1.5} /> <strong>Resultado contraintuitivo:</strong> La reutilización se mantiene 
             sorprendentemente estable (≈70%) independientemente del nivel de satisfacción. 
             Las diferencias son mínimas (±2%), lo que sugiere que la satisfacción, por sí 
             sola, no es el único factor decisivo. Esto nos indica que hay otros elementos 
@@ -437,7 +438,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
           <div ref={graficoResultadoRef} className="grafico"></div>
           <img src={imagen7} alt="Resultados exitosos" className="imagen-grafico" />
           <p className="explicacion-grafico">
-            ✅ <strong>Aquí está el factor clave:</strong> A diferencia de la satisfacción, 
+            <CheckCircle className="icono-inline" size={20} strokeWidth={1.5} /> <strong>Aquí está el factor clave:</strong> A diferencia de la satisfacción, 
             el resultado final sí muestra una relación clara. Cuando los estudiantes logran 
             completar sus tareas exitosamente, la probabilidad de reutilización aumenta 
             significativamente. El éxito tangible supera a la satisfacción subjetiva. 
@@ -447,7 +448,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
         </div>
 
         <div className="conclusion-seccion">
-          <div className="icono-conclusion-seccion">🎯</div>
+          <Target className="icono-conclusion-seccion" size={40} strokeWidth={1.5} />
           <p className="texto-conclusion">
             <strong>La Verdad Revelada:</strong> Los datos desafían nuestra intuición. 
             La reutilización no depende tanto de cuán satisfechos se sienten los estudiantes, 
@@ -455,7 +456,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
             debe enfocarse en <strong>efectividad medible</strong> más que en "experiencia 
             del usuario" abstracta. Los estudiantes perdonan imperfecciones si obtienen 
             resultados, pero no volverán aunque la experiencia sea agradable si no resuelve 
-            su problema reals que vuelven una 
+            su problema real. Aquellos que encuentran éxito son los que vuelven una 
             y otra vez. La IA ha ganado su lugar en la educación.
           </p>
         </div>
