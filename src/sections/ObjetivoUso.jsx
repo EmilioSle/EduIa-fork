@@ -36,14 +36,22 @@ const ObjetivoUso = ({ datos }) => {
       ScrollTrigger.create({
         trigger: graficoBarrasRef.current,
         start: "top 70%",
-        onEnter: () => crearGraficoBarras(),
+        onEnter: () => {
+          if (graficoBarrasRef.current && !graficosCreados) {
+            crearGraficoBarras();
+          }
+        },
       });
 
       // Animación del gráfico donut
       ScrollTrigger.create({
         trigger: graficoDonutRef.current,
         start: "top 70%",
-        onEnter: () => crearGraficoDonut(),
+        onEnter: () => {
+          if (graficoDonutRef.current && !graficosCreados) {
+            crearGraficoDonut();
+          }
+        },
       });
     }, seccionRef);
 

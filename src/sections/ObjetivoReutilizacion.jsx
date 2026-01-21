@@ -34,13 +34,21 @@ const ObjetivoReutilizacion = ({ datos }) => {
       ScrollTrigger.create({
         trigger: graficoSatisfaccionRef.current,
         start: "top 70%",
-        onEnter: () => crearGraficoSatisfaccion(),
+        onEnter: () => {
+          if (graficoSatisfaccionRef.current && !graficosCreados) {
+            crearGraficoSatisfaccion();
+          }
+        },
       });
 
       ScrollTrigger.create({
         trigger: graficoResultadoRef.current,
         start: "top 70%",
-        onEnter: () => crearGraficoResultado(),
+        onEnter: () => {
+          if (graficoResultadoRef.current && !graficosCreados) {
+            crearGraficoResultado();
+          }
+        },
       });
     }, seccionRef);
 

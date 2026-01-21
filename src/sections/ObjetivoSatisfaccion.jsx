@@ -34,13 +34,21 @@ const ObjetivoSatisfaccion = ({ datos }) => {
       ScrollTrigger.create({
         trigger: graficoScatterRef.current,
         start: "top 70%",
-        onEnter: () => crearGraficoScatter(),
+        onEnter: () => {
+          if (graficoScatterRef.current && !graficosCreados) {
+            crearGraficoScatter();
+          }
+        },
       });
 
       ScrollTrigger.create({
         trigger: graficoBarrasRef.current,
         start: "top 70%",
-        onEnter: () => crearGraficoBarras(),
+        onEnter: () => {
+          if (graficoBarrasRef.current && !graficosCreados) {
+            crearGraficoBarras();
+          }
+        },
       });
     }, seccionRef);
 
