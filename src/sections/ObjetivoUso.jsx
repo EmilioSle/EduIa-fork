@@ -250,7 +250,7 @@ const ObjetivoUso = ({ datos }) => {
       ? 400 
       : 450;
     
-    const legendHeight = isMobile ? 120 : isTablet ? 100 : 90;
+    const legendHeight = isMobile ? 190 : isTablet ? 100 : 90; // Más espacio en móvil para 5 items
     const width = isMobile ? donutSize : isTablet ? 550 : 650;
     const height = donutSize + legendHeight;
     const radius = donutSize / 2 - (isMobile ? 30 : 40);
@@ -353,34 +353,41 @@ const ObjetivoUso = ({ datos }) => {
 
     const itemsPerRow = isMobile ? 1 : isTablet ? 2 : 3;
     const itemWidth = width / itemsPerRow;
+    const rowHeight = isMobile ? 35 : 30; // Mayor separación en móvil
+    const fontSize = isMobile ? "12px" : isTablet ? "12px" : "13px";
 
     datosArray.forEach((d, i) => {
       const row = Math.floor(i / itemsPerRow);
       const col = i % itemsPerRow;
       
+      // Centrar en móvil, alinear a la izquierda en desktop/tablet
+      const xPosition = isMobile 
+        ? width / 2 - 100 // Centrado aproximado
+        : col * itemWidth + 20;
+      
       const legendItem = legendGroup
         .append("g")
-        .attr("transform", `translate(${col * itemWidth + 20}, ${row * 30})`);
+        .attr("transform", `translate(${xPosition}, ${row * rowHeight})`);
 
       legendItem
         .append("rect")
-        .attr("width", 16)
-        .attr("height", 16)
+        .attr("width", isMobile ? 14 : 16)
+        .attr("height", isMobile ? 14 : 16)
         .attr("rx", 3)
         .attr("fill", color(d.tarea))
         .attr("opacity", 0.85);
 
       legendItem
         .append("text")
-        .attr("x", 24)
-        .attr("y", 8)
+        .attr("x", isMobile ? 20 : 24)
+        .attr("y", isMobile ? 7 : 8)
         .attr("dy", "0.35em")
-        .style("font-size", isMobile ? "11px" : isTablet ? "12px" : "13px")
+        .style("font-size", fontSize)
         .style("fill", "#fff")
         .style("font-weight", "500")
         .text(() => {
           const texto = `${d.tarea} (${d.porcentaje}%)`;
-          const maxLength = isMobile ? 25 : isTablet ? 35 : 40;
+          const maxLength = isMobile ? 30 : isTablet ? 35 : 40;
           return texto.length > maxLength ? texto.substring(0, maxLength - 3) + "..." : texto;
         });
     });
