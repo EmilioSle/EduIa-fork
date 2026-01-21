@@ -108,15 +108,16 @@ const ObjetivoReutilizacion = ({ datos }) => {
       ? { top: 35, right: 30, bottom: 90, left: 70 }
       : { top: 40, right: 40, bottom: 90, left: 80 };
     
-    // Limitar ancho máximo para desktop
-    const maxWidth = isMobile ? containerWidth : isTablet ? 700 : 800;
-    const width = Math.min(Math.max(300, containerWidth - 40), maxWidth) - margin.left - margin.right;
-    const height = isMobile ? 350 : isTablet ? 400 : 500;
+    // Desktop: tamaño fijo original, móvil/tablet: responsivo
+    const width = isMobile || isTablet 
+      ? Math.max(300, containerWidth - 40) - margin.left - margin.right
+      : 700 - margin.left - margin.right;
+    const height = isMobile ? 350 : isTablet ? 400 : 450;
 
     const svg = d3
       .select(graficoSatisfaccionRef.current)
       .append("svg")
-      .attr("width", "100%")
+      .attr("width", isMobile || isTablet ? "100%" : width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
       .attr("preserveAspectRatio", "xMidYMid meet")
@@ -281,14 +282,15 @@ const ObjetivoReutilizacion = ({ datos }) => {
       ? { top: 35, right: 30, bottom: 120, left: 70 }
       : { top: 40, right: 40, bottom: 120, left: 80 };
     
-    // Limitar ancho máximo para desktop
-    const maxWidth = isMobile ? containerWidth : isTablet ? 700 : 800;
-    const width = Math.min(Math.max(300, containerWidth - 40), maxWidth) - margin.left - margin.right;
-    const height = isMobile ? 350 : isTablet ? 400 : 500;
+    // Desktop: tamaño fijo original, móvil/tablet: responsivo
+    const width = isMobile || isTablet 
+      ? Math.max(300, containerWidth - 40) - margin.left - margin.right
+      : 700 - margin.left - margin.right;
+    const height = isMobile ? 350 : isTablet ? 400 : 450;
 
     const svg = d3
       .select(graficoResultadoRef.current)
-      .append("svg")
+      .append("svg")isMobile || isTablet ? "100%" : width + margin.left + margin.right
       .attr("width", "100%")
       .attr("height", height + margin.top + margin.bottom)
       .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)

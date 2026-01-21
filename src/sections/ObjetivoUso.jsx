@@ -97,15 +97,16 @@ const ObjetivoUso = ({ datos }) => {
       ? { top: 35, right: 30, bottom: 100, left: 70 }
       : { top: 40, right: 40, bottom: 100, left: 80 };
     
-    // Limitar ancho máximo para desktop
-    const maxWidth = isMobile ? containerWidth : isTablet ? 700 : 800;
-    const width = Math.min(Math.max(300, containerWidth - 40), maxWidth) - margin.left - margin.right;
-    const height = isMobile ? 350 : isTablet ? 400 : 500;
+    // Desktop: tamaño fijo original, móvil/tablet: responsivo
+    const width = isMobile || isTablet 
+      ? Math.max(300, containerWidth - 40) - margin.left - margin.right
+      : 700 - margin.left - margin.right;
+    const height = isMobile ? 350 : isTablet ? 400 : 450;
 
     const svg = d3
       .select(graficoBarrasRef.current)
       .append("svg")
-      .attr("width", "100%")
+      .attr("width", isMobile || isTablet ? "100%" : width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
       .attr("preserveAspectRatio", "xMidYMid meet")
@@ -228,10 +229,15 @@ const ObjetivoUso = ({ datos }) => {
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
-    const size = isMobile ? Math.min(350, containerWidth - 40) : isTablet ? 450 : 480;
+    // Desktop: tamaño fijo original, móvil/tablet: responsivo
+    const size = isMobile 
+      ? Math.min(350, containerWidth - 40) 
+      : isTablet 
+      ? 450 
+      : 500;
     const width = size;
     const height = size;
-    const radius = Math.min(width, height) / 2 - (isMobile ? 40 : 60);
+    const radius = MaisMobile || isTablet ? "100%" : width(width, height) / 2 - (isMobile ? 40 : 60);
 
     const svg = d3
       .select(graficoDonutRef.current)
