@@ -1,13 +1,18 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
   "framework": "vite",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/((?!.*\\.csv$).*)",
-      "destination": "/index.html"
+      "src": "/datos_limpios.csv",
+      "dest": "/datos_limpios.csv"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
