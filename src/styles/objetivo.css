@@ -58,13 +58,15 @@
 }
 
 .grafico-contenedor {
-  margin-bottom: 5rem;
+  margin-bottom: 6rem;
   background: rgba(20, 27, 61, 0.5);
   border-radius: 20px;
   padding: 3rem 2rem;
   border: 1px solid rgba(0, 217, 255, 0.2);
   backdrop-filter: blur(10px);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  position: relative;
 }
 
 .grafico-contenedor:hover {
@@ -85,8 +87,9 @@
   justify-content: center;
   align-items: center;
   margin: 2rem 0;
-  min-height: 500px;
-  overflow: visible;
+  min-height: 400px;
+  overflow: hidden;
+  position: relative;
 }
 
 .grafico svg {
@@ -95,6 +98,8 @@
   overflow: visible;
   display: block;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .grafico svg text {
@@ -216,11 +221,11 @@
 
   .grafico-contenedor {
     padding: 2rem 1rem;
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
   }
 
   .grafico {
-    min-height: 400px;
+    min-height: 350px;
   }
 
   .grafico svg {
@@ -245,12 +250,13 @@
   }
   
   .grafico {
-    min-height: 350px;
+    min-height: 300px;
   }
   
   .grafico-contenedor {
     padding: 1.5rem 0.75rem;
     border-radius: 15px;
+    margin-bottom: 3rem;
   }
   
   .explicacion-grafico {
