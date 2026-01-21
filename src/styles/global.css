@@ -1,11 +1,11 @@
+/* Importar animaciones cinematográficas */
+@import './animaciones.css';
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
-/* Importar animaciones cinematográficas */
-@import './animaciones.css';
 
 :root {
   --color-fondo: #0a0e27;
