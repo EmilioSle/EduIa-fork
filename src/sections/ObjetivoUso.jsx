@@ -232,20 +232,28 @@ const ObjetivoUso = ({ datos }) => {
       cantidad,
     }));
 
+    // Calcular total y porcentajes
+    const total = d3.sum(datosArray, d => d.cantidad);
+    datosArray.forEach(d => {
+      d.porcentaje = ((d.cantidad / total) * 100).toFixed(1);
+    });
+
     // Configuración responsiva
     const containerWidth = graficoDonutRef.current.clientWidth;
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
-    // Desktop: tamaño fijo original, móvil/tablet: responsivo
-    const size = isMobile 
-      ? Math.min(350, containerWidth - 40) 
+    // Desktop: tamaño fijo original con espacio para leyenda abajo
+    const donutSize = isMobile 
+      ? Math.min(300, containerWidth - 40) 
       : isTablet 
-      ? 450 
-      : 500;
-    const width = size;
-    const height = size;
-    const radius = MaisMobile || isTablet ? "100%" : width(width, height) / 2 - (isMobile ? 40 : 60);
+      ? 350 
+      : 380;
+    
+    const legendHeight = isMobile ? 120 : isTablet ? 100 : 80;
+    const width = isMobile ? donutSize : isTablet ? 500 : 580;
+    const height = donutSize + legendHeight;
+    const radius = donutSize / 2 - (isMobile ? 30 : 40);
 
     const svg = d3
       .select(graficoDonutRef.current)
@@ -271,13 +279,13 @@ const ObjetivoUso = ({ datos }) => {
 
     const arc = d3
       .arc()
-      .innerRadius(radius * 0.5)
+      .innerRadius(radius * 0.6)
       .outerRadius(radius);
 
     const arcHover = d3
       .arc()
-      .innerRadius(radius * 0.5)
-      .outerRadius(radius * 1.1);
+      .innerRadius(radius * 0.6)
+      .outerRadius(radius * 1.08);
 
     // Dibujar arcos con animación
     const arcos = svg
@@ -319,51 +327,63 @@ const ObjetivoUso = ({ datos }) => {
         };
       });
 
-    // Agregar etiquetas
+    // Agregar porcentajes dentro del donut
     arcos
       .append("text")
       .attr("transform", (d) => `translate(${arc.centroid(d)})`)
       .attr("dy", "0.35em")
       .style("text-anchor", "middle")
-      .style("font-size", "12px")
+      .style("font-size", isMobile ? "11px" : "13px")
       .style("font-weight", "bold")
       .style("fill", "#fff")
+      .style("text-shadow", "0 0 3px rgba(0,0,0,0.8)")
       .style("opacity", 0)
-      .text((d) => `${d.data.cantidad}`)
+      .text((d) => `${d.data.porcentaje}%`)
       .transition()
       .duration(800)
       .delay(1500)
       .style("opacity", 1);
 
-    // Leyenda
-    const leyenda = svg
-      .selectAll(".leyenda")
-      .data(datosArray)
-      .enter()
+    // Leyenda horizontal abajo
+    const legendGroup = d3
+      .select(graficoDonutRef.current)
+      .select("svg")
       .append("g")
-      .attr("class", "leyenda")
-      .attr("transform", (d, i) => `translate(${radius + 50},${-120 + i * 30})`);
+      .attr("transform", `translate(0, ${donutSize + 20})`);
 
-    leyenda
-      .append("rect")
-      .attr("width", 18)
-      .attr("height", 18)
-      .attr("fill", (d) => color(d.tarea))
-      .attr("opacity", 0.85);
+    const itemsPerRow = isMobile ? 1 : isTablet ? 2 : 3;
+    const itemWidth = width / itemsPerRow;
 
-    leyenda
-      .append("text")
-      .attr("x", 25)
-      .attr("y", 9)
-      .attr("dy", "0.35em")
-      .style("font-size", "13px")
-      .style("fill", "#fff")
-      .style("font-weight", "500")
-      .text((d) => {
-        // Truncar texto largo para leyenda
-        const texto = d.tarea;
-        return texto.length > 20 ? texto.substring(0, 18) + "..." : texto;
-      });
+    datosArray.forEach((d, i) => {
+      const row = Math.floor(i / itemsPerRow);
+      const col = i % itemsPerRow;
+      
+      const legendItem = legendGroup
+        .append("g")
+        .attr("transform", `translate(${col * itemWidth + 20}, ${row * 30})`);
+
+      legendItem
+        .append("rect")
+        .attr("width", 16)
+        .attr("height", 16)
+        .attr("rx", 3)
+        .attr("fill", color(d.tarea))
+        .attr("opacity", 0.85);
+
+      legendItem
+        .append("text")
+        .attr("x", 24)
+        .attr("y", 8)
+        .attr("dy", "0.35em")
+        .style("font-size", isMobile ? "11px" : "12px")
+        .style("fill", "#fff")
+        .style("font-weight", "500")
+        .text(() => {
+          const texto = `${d.tarea} (${d.porcentaje}%)`;
+          const maxLength = isMobile ? 25 : isTablet ? 30 : 35;
+          return texto.length > maxLength ? texto.substring(0, maxLength - 3) + "..." : texto;
+        });
+    });
 
     setGraficosCreados(true);
   };
