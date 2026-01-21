@@ -239,8 +239,8 @@ const ObjetivoSatisfaccion = ({ datos }) => {
 
     const svg = d3
       .select(graficoBarrasRef.current)
-      .append("svg")isMobile || isTablet ? "100%" : width + margin.left + margin.right
-      .attr("width", "100%")
+      .append("svg")
+      .attr("width", isMobile || isTablet ? "100%" : width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
       .attr("preserveAspectRatio", "xMidYMid meet")
