@@ -263,7 +263,7 @@ const ObjetivoUso = ({ datos }) => {
       .attr("viewBox", `0 0 ${width} ${height}`)
       .attr("preserveAspectRatio", "xMidYMid meet")
       .append("g")
-      .attr("transform", `translate(${width / 2},${height / 2})`);
+      .attr("transform", `translate(${width / 2},${donutSize / 2})`);
 
     // Escala de colores
     const color = d3
