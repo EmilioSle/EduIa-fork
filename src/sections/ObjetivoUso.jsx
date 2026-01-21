@@ -247,11 +247,11 @@ const ObjetivoUso = ({ datos }) => {
     const donutSize = isMobile 
       ? Math.min(300, containerWidth - 40) 
       : isTablet 
-      ? 350 
-      : 380;
+      ? 400 
+      : 450;
     
-    const legendHeight = isMobile ? 120 : isTablet ? 100 : 80;
-    const width = isMobile ? donutSize : isTablet ? 500 : 580;
+    const legendHeight = isMobile ? 120 : isTablet ? 100 : 90;
+    const width = isMobile ? donutSize : isTablet ? 550 : 650;
     const height = donutSize + legendHeight;
     const radius = donutSize / 2 - (isMobile ? 30 : 40);
 
@@ -333,7 +333,7 @@ const ObjetivoUso = ({ datos }) => {
       .attr("transform", (d) => `translate(${arc.centroid(d)})`)
       .attr("dy", "0.35em")
       .style("text-anchor", "middle")
-      .style("font-size", isMobile ? "11px" : "13px")
+      .style("font-size", isMobile ? "11px" : isTablet ? "13px" : "14px")
       .style("font-weight", "bold")
       .style("fill", "#fff")
       .style("text-shadow", "0 0 3px rgba(0,0,0,0.8)")
@@ -375,12 +375,12 @@ const ObjetivoUso = ({ datos }) => {
         .attr("x", 24)
         .attr("y", 8)
         .attr("dy", "0.35em")
-        .style("font-size", isMobile ? "11px" : "12px")
+        .style("font-size", isMobile ? "11px" : isTablet ? "12px" : "13px")
         .style("fill", "#fff")
         .style("font-weight", "500")
         .text(() => {
           const texto = `${d.tarea} (${d.porcentaje}%)`;
-          const maxLength = isMobile ? 25 : isTablet ? 30 : 35;
+          const maxLength = isMobile ? 25 : isTablet ? 35 : 40;
           return texto.length > maxLength ? texto.substring(0, maxLength - 3) + "..." : texto;
         });
     });
