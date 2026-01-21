@@ -228,7 +228,7 @@ const ObjetivoUso = ({ datos }) => {
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
-    const size = isMobile ? Math.min(350, containerWidth - 40) : isTablet ? 480 : 550;
+    const size = isMobile ? Math.min(350, containerWidth - 40) : isTablet ? 450 : 480;
     const width = size;
     const height = size;
     const radius = Math.min(width, height) / 2 - (isMobile ? 40 : 60);
