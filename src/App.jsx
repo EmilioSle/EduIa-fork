@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import Lenis from "@studio-freight/lenis";
 import { Users, Clock, Star, RotateCw } from "lucide-react";
 import { cargarDatos } from "./services/servicioDatos";
 import Intro from "./sections/Intro";
 import TransicionNarrativa from "./components/TransicionNarrativa";
 import EstadisticaDestacada from "./components/EstadisticaDestacada";
-import ObjetivoUso from "./sections/ObjetivoUso";
-import ObjetivoSatisfaccion from "./sections/ObjetivoSatisfaccion";
-import ObjetivoReutilizacion from "./sections/ObjetivoReutilizacion";
-import Conclusiones from "./sections/Conclusiones";
 import "./styles/global.css";
+
+// Lazy loading de secciones pesadas
+const ObjetivoUso = lazy(() => import("./sections/ObjetivoUso"));
+const ObjetivoSatisfaccion = lazy(() => import("./sections/ObjetivoSatisfaccion"));
+const ObjetivoReutilizacion = lazy(() => import("./sections/ObjetivoReutilizacion"));
+const Conclusiones = lazy(() => import("./sections/Conclusiones"));
 
 const App = () => {
   const [datos, setDatos] = useState(null);
@@ -17,11 +19,14 @@ const App = () => {
   const [estadisticasGenerales, setEstadisticasGenerales] = useState(null);
 
   useEffect(() => {
-    // Configurar scroll suave con Lenis
+    // Configurar scroll suave con Lenis (optimizado)
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+      wheelMultiplier: 1.2,
+      touchMultiplier: 2,
+      infinite: false,
     });
 
     function raf(time) {
@@ -129,7 +134,9 @@ const App = () => {
         }}
       />
 
-      <ObjetivoUso datos={datos} />
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--color-fondo)' }} />}>
+        <ObjetivoUso datos={datos} />
+      </Suspense>
 
       {/* Transición al segundo objetivo */}
       <TransicionNarrativa
@@ -137,7 +144,9 @@ const App = () => {
         contexto="La satisfacción no es solo un número, es la diferencia entre una herramienta útil y una frustración más."
       />
 
-      <ObjetivoSatisfaccion datos={datos} />
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--color-fondo-secundario)' }} />}>
+        <ObjetivoSatisfaccion datos={datos} />
+      </Suspense>
 
       {/* Transición al tercer objetivo */}
       <TransicionNarrativa
@@ -148,14 +157,18 @@ const App = () => {
         texto="La verdadera prueba de fuego: ¿volverían a usar la IA? Pero más importante aún: ¿qué hace que un estudiante vuelva?"
       />
 
-      <ObjetivoReutilizacion datos={datos} />
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#1a1f3a' }} />}>
+        <ObjetivoReutilizacion datos={datos} />
+      </Suspense>
 
       {/* Transición a conclusiones */}
       <TransicionNarrativa
         texto="Los datos han hablado. Ahora es momento de conectar los puntos y entender el panorama completo."
       />
 
-      <Conclusiones />
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--color-fondo)' }} />}>
+        <Conclusiones />
+      </Suspense>
     </div>
   );
 };
