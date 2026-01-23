@@ -131,10 +131,10 @@ const ObjetivoReutilizacion = ({ datos }) => {
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
     const margin = isMobile 
-      ? { top: 30, right: 30, bottom: 80, left: 70 }
+      ? { top: 30, right: 30, bottom: 100, left: 70 }
       : isTablet
-      ? { top: 35, right: 40, bottom: 80, left: 80 }
-      : { top: 40, right: 50, bottom: 80, left: 90 };
+      ? { top: 35, right: 40, bottom: 100, left: 80 }
+      : { top: 40, right: 50, bottom: 100, left: 90 };
     
     const width = isMobile || isTablet 
       ? Math.max(300, containerWidth - 40) - margin.left - margin.right
@@ -231,7 +231,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", height + 55)
+      .attr("y", height + 75)
       .style("text-anchor", "middle")
       .style("font-size", "16px")
       .style("font-weight", "600")
@@ -375,24 +375,24 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .attr("y", (d) => y(d.porcentaje) - 22)
       .style("opacity", 1);
 
-    // Sub-etiquetas (rangos)
+    // Sub-etiquetas (rangos numéricos) - separadas de las etiquetas principales
     svg.selectAll(".sub-etiqueta")
       .data(datosPorRango)
       .enter()
       .append("text")
       .attr("class", "sub-etiqueta")
       .attr("x", (d) => x(d.rango))
-      .attr("y", height + 25)
+      .attr("y", height + 45)
       .attr("text-anchor", "middle")
-      .style("font-size", isMobile ? "10px" : "12px")
+      .style("font-size", isMobile ? "11px" : "13px")
       .style("font-weight", "500")
-      .style("fill", "#999")
+      .style("fill", "#888")
       .style("opacity", 0)
-      .text((d) => d.sublabel)
+      .text((d) => `(${d.sublabel})`)
       .transition()
       .duration(600)
       .delay(1800)
-      .style("opacity", 0.8);
+      .style("opacity", 0.9);
 
     // Línea de referencia en 50%
     const referenciaLinea = 50;
