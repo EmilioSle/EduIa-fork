@@ -14,23 +14,43 @@ const Conclusiones = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Animación del título inmediata
-      gsap.from(tituloRef.current, {
-        opacity: 0,
-        y: 50,
-        duration: 1,
-        ease: "power3.out",
-      });
+      // Asegurar que los elementos sean visibles primero
+      gsap.set([tituloRef.current, puntosRef.current.children], { opacity: 1, x: 0, y: 0 });
+      
+      // Animación del título con ScrollTrigger
+      gsap.fromTo(tituloRef.current, 
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: tituloRef.current,
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      );
 
-      // Animación de los puntos inmediata y visible
-      gsap.from(puntosRef.current.children, {
-        opacity: 0,
-        x: -50,
-        stagger: 0.2,
-        duration: 0.6,
-        delay: 0.5,
-        ease: "power2.out",
-      });
+      // Animación de los puntos con ScrollTrigger
+      gsap.fromTo(puntosRef.current.children,
+        { opacity: 0, x: -50 },
+        {
+          opacity: 1,
+          x: 0,
+          stagger: 0.2,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: puntosRef.current,
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      );
     }, seccionRef);
 
     return () => ctx.revert();
