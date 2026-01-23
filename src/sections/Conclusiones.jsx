@@ -14,30 +14,21 @@ const Conclusiones = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Animación del título
+      // Animación del título inmediata
       gsap.from(tituloRef.current, {
-        scrollTrigger: {
-          trigger: seccionRef.current,
-          start: "top 70%",
-          toggleActions: "play none none none",
-        },
         opacity: 0,
         y: 50,
         duration: 1,
         ease: "power3.out",
       });
 
-      // Animación de los puntos con stagger
+      // Animación de los puntos inmediata y visible
       gsap.from(puntosRef.current.children, {
-        scrollTrigger: {
-          trigger: puntosRef.current,
-          start: "top 80%",
-          toggleActions: "play none none none",
-        },
         opacity: 0,
         x: -50,
-        stagger: 0.3,
-        duration: 0.8,
+        stagger: 0.2,
+        duration: 0.6,
+        delay: 0.5,
         ease: "power2.out",
       });
     }, seccionRef);
@@ -82,7 +73,7 @@ const Conclusiones = () => {
               <p>
                 Una lección contraintuitiva: pasar más tiempo no significa mejores 
                 resultados. Los estudiantes más satisfechos tienen sesiones enfocadas 
-                y efectivas. La ía que verdaderamente ayuda no necesita horas de tu 
+                y efectivas. La IA que verdaderamente ayuda no necesita horas de tu 
                 tiempo, necesita entender lo que necesitas. Es la diferencia entre 
                 un tutor que divaga y uno que va directo al punto.
               </p>
