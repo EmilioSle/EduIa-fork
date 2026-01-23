@@ -372,3 +372,53 @@
   justify-content: center;
   color: var(--color-primario);
 }
+
+/* Animación fluida de entrada para gráficos */
+.grafico-entrada {
+  opacity: 0;
+  transform: translateY(40px) scale(0.95);
+  animation: fadeInChart 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInChart {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Contenedor del gráfico con altura reservada */
+.grafico-wrapper {
+  min-height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.grafico-wrapper-pequeno {
+  min-height: 350px;
+}
+
+.grafico-wrapper-grande {
+  min-height: 550px;
+}
+
+/* Variantes con diferentes delays */
+.grafico-entrada.delay-1 {
+  animation-delay: 0.1s;
+}
+
+.grafico-entrada.delay-2 {
+  animation-delay: 0.2s;
+}
+
+.grafico-entrada.delay-3 {
+  animation-delay: 0.3s;
+}
