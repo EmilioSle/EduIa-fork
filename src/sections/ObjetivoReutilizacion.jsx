@@ -108,7 +108,6 @@ const ObjetivoReutilizacion = ({ datos }) => {
     ];
 
     const datosPorRango = rangos.map((rango, index) => {
-      // Para el último rango, incluir el valor máximo exacto
       const enRango = datosValidos.filter((d) => {
         if (index === rangos.length - 1) {
           return d.satisfaccion >= rango.min && d.satisfaccion <= 5;
@@ -132,12 +131,11 @@ const ObjetivoReutilizacion = ({ datos }) => {
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
     const margin = isMobile 
-      ? { top: 30, right: 20, bottom: 100, left: 70 }
+      ? { top: 30, right: 30, bottom: 80, left: 70 }
       : isTablet
-      ? { top: 35, right: 30, bottom: 90, left: 80 }
-      : { top: 40, right: 40, bottom: 90, left: 90 };
+      ? { top: 35, right: 40, bottom: 80, left: 80 }
+      : { top: 40, right: 50, bottom: 80, left: 90 };
     
-    // Tamaño mejorado
     const width = isMobile || isTablet 
       ? Math.max(300, containerWidth - 40) - margin.left - margin.right
       : 800 - margin.left - margin.right;
@@ -153,26 +151,40 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Escalas mejoradas
+    // Escalas para Area Chart
     const x = d3
-      .scaleBand()
+      .scalePoint()
       .range([0, width])
       .domain(datosPorRango.map((d) => d.rango))
-      .padding(0.2);
+      .padding(0.5);
 
     const y = d3.scaleLinear()
       .domain([0, 100])
       .range([height, 0])
       .nice();
 
-    // Colores únicos y distintivos para cada barra
-    const coloresBarras = [
-      "#ff6b6b",  // Coral/Rojo
-      "#ffd93d",  // Amarillo dorado
-      "#6bcb77",  // Verde menta
-      "#4ecdc4",  // Turquesa
-      "#9d4edd",  // Púrpura vibrante
-    ];
+    // Colores para el área
+    const areaColor = "#00d9ff";
+    const lineColor = "#00ffff";
+
+    // Definir gradiente para el área
+    const defs = svg.append("defs");
+    const gradient = defs.append("linearGradient")
+      .attr("id", "areaGradient")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "0%")
+      .attr("y2", "100%");
+    
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", areaColor)
+      .attr("stop-opacity", 0.8);
+    
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", areaColor)
+      .attr("stop-opacity", 0.1);
 
     // Agregar grid horizontal
     svg.append("g")
@@ -186,7 +198,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .selectAll("line")
       .style("stroke", "#fff");
 
-    // Eje X mejorado
+    // Eje X
     const xAxis = svg
       .append("g")
       .attr("transform", `translate(0,${height})`)
@@ -202,7 +214,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .style("stroke", "#fff")
       .style("stroke-width", 2);
 
-    // Eje Y mejorado
+    // Eje Y
     const yAxis = svg.append("g")
       .call(d3.axisLeft(y).ticks(10).tickSizeOuter(0));
 
@@ -219,7 +231,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", height + 60)
+      .attr("y", height + 55)
       .style("text-anchor", "middle")
       .style("font-size", "16px")
       .style("font-weight", "600")
@@ -237,101 +249,140 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .style("fill", "#00d9ff")
       .text("% de Reutilización");
 
-    // Crear tooltip mejorado
+    // Crear tooltip
     const tooltip = d3
       .select(graficoSatisfaccionRef.current)
       .append("div")
       .attr("class", "tooltip-grafico")
       .style("opacity", 0);
 
-    // Barras con mejor diseño
-    const barras = svg
-      .selectAll(".barra")
+    // Crear generador de área
+    const area = d3.area()
+      .x((d) => x(d.rango))
+      .y0(height)
+      .y1((d) => y(d.porcentaje))
+      .curve(d3.curveMonotoneX);
+
+    // Crear generador de línea
+    const line = d3.line()
+      .x((d) => x(d.rango))
+      .y((d) => y(d.porcentaje))
+      .curve(d3.curveMonotoneX);
+
+    // Dibujar área con animación
+    const areaPath = svg.append("path")
+      .datum(datosPorRango)
+      .attr("class", "area")
+      .attr("fill", "url(#areaGradient)")
+      .attr("d", d3.area()
+        .x((d) => x(d.rango))
+        .y0(height)
+        .y1(height)
+        .curve(d3.curveMonotoneX)
+      );
+
+    areaPath.transition()
+      .duration(1500)
+      .ease(d3.easeCubicOut)
+      .attr("d", area);
+
+    // Dibujar línea con animación
+    const linePath = svg.append("path")
+      .datum(datosPorRango)
+      .attr("class", "line")
+      .attr("fill", "none")
+      .attr("stroke", lineColor)
+      .attr("stroke-width", 4)
+      .style("filter", "drop-shadow(0 0 8px rgba(0, 255, 255, 0.6))");
+
+    const totalLength = width * 2;
+    linePath
+      .attr("stroke-dasharray", totalLength)
+      .attr("stroke-dashoffset", totalLength)
+      .attr("d", line)
+      .transition()
+      .duration(1500)
+      .ease(d3.easeCubicOut)
+      .attr("stroke-dashoffset", 0);
+
+    // Agregar puntos en cada categoría
+    const puntos = svg.selectAll(".punto")
       .data(datosPorRango)
       .enter()
-      .append("rect")
-      .attr("class", "barra")
-      .attr("x", (d) => x(d.rango))
-      .attr("width", x.bandwidth())
-      .attr("y", height)
-      .attr("height", 0)
-      .attr("fill", (d, i) => coloresBarras[i % coloresBarras.length])
-      .attr("rx", 4)
-      .attr("ry", 4)
+      .append("circle")
+      .attr("class", "punto")
+      .attr("cx", (d) => x(d.rango))
+      .attr("cy", height)
+      .attr("r", 0)
+      .attr("fill", lineColor)
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 3)
       .style("cursor", "pointer")
+      .style("filter", "drop-shadow(0 0 10px rgba(0, 255, 255, 0.8))")
       .on("mouseenter", function (event, d) {
         d3.select(this)
           .transition()
           .duration(200)
-          .attr("opacity", 1)
-          .attr("y", y(d.porcentaje) - 5)
-          .attr("height", height - y(d.porcentaje) + 5);
+          .attr("r", isMobile ? 14 : 18)
+          .style("filter", "drop-shadow(0 0 15px rgba(0, 255, 255, 1))");
         
         tooltip.transition().duration(200).style("opacity", 0.95);
-        const barIndex = datosPorRango.findIndex(item => item.rango === d.rango);
         tooltip
           .html(
             `<strong>Satisfacción ${d.rango}</strong> (${d.sublabel})<br/>
              Total estudiantes: <strong>${d.total}</strong><br/>
              Reutilizan: <strong>${d.reutilizan}</strong> (${d.porcentaje.toFixed(1)}%)<br/>
-             No reutilizan: <strong>${d.total - d.reutilizan}</strong><br/>
-             <small style="color: ${coloresBarras[barIndex % coloresBarras.length]}">■</small> Tasa de adopción`
+             No reutilizan: <strong>${d.total - d.reutilizan}</strong>`
           )
           .style("left", event.pageX + 10 + "px")
           .style("top", event.pageY - 28 + "px");
       })
-      .on("mouseleave", function (event, d) {
+      .on("mouseleave", function () {
         d3.select(this)
           .transition()
           .duration(200)
-          .attr("opacity", 0.85)
-          .attr("y", y(d.porcentaje))
-          .attr("height", height - y(d.porcentaje));
+          .attr("r", isMobile ? 10 : 12)
+          .style("filter", "drop-shadow(0 0 10px rgba(0, 255, 255, 0.8))");
         
         tooltip.transition().duration(200).style("opacity", 0);
       });
 
-    // Animación de entrada suave
-    barras
-      .attr("opacity", 0.85)
-      .transition()
-      .duration(1400)
-      .delay((d, i) => i * 150)
-      .attr("y", (d) => y(d.porcentaje))
-      .attr("height", (d) => height - y(d.porcentaje))
-      .ease(d3.easeCubicOut);
+    puntos.transition()
+      .duration(800)
+      .delay((d, i) => 1200 + i * 200)
+      .attr("cy", (d) => y(d.porcentaje))
+      .attr("r", isMobile ? 10 : 12)
+      .ease(d3.easeBackOut);
 
-    // Valores con mejor estilo
-    svg
-      .selectAll(".etiqueta-valor")
+    // Etiquetas de valores
+    svg.selectAll(".etiqueta-valor")
       .data(datosPorRango)
       .enter()
       .append("text")
       .attr("class", "etiqueta-valor")
-      .attr("x", (d) => x(d.rango) + x.bandwidth() / 2)
+      .attr("x", (d) => x(d.rango))
       .attr("y", height)
       .attr("text-anchor", "middle")
       .style("font-size", isMobile ? "13px" : "16px")
       .style("font-weight", "700")
       .style("fill", "#fff")
       .style("opacity", 0)
-      .style("text-shadow", "0 0 5px rgba(0,0,0,0.8)")
+      .style("text-shadow", "0 0 8px rgba(0,0,0,0.9)")
       .text((d) => `${d.porcentaje.toFixed(1)}%`)
       .transition()
       .duration(800)
-      .delay((d, i) => i * 150 + 700)
-      .attr("y", (d) => y(d.porcentaje) - 12)
+      .delay((d, i) => 1400 + i * 200)
+      .attr("y", (d) => y(d.porcentaje) - 22)
       .style("opacity", 1);
 
-    // Agregar sub-etiquetas (rangos)
-    svg
-      .selectAll(".sub-etiqueta")
+    // Sub-etiquetas (rangos)
+    svg.selectAll(".sub-etiqueta")
       .data(datosPorRango)
       .enter()
       .append("text")
       .attr("class", "sub-etiqueta")
-      .attr("x", (d) => x(d.rango) + x.bandwidth() / 2)
-      .attr("y", height + 20)
+      .attr("x", (d) => x(d.rango))
+      .attr("y", height + 25)
       .attr("text-anchor", "middle")
       .style("font-size", isMobile ? "10px" : "12px")
       .style("font-weight", "500")
@@ -340,7 +391,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .text((d) => d.sublabel)
       .transition()
       .duration(600)
-      .delay(1600)
+      .delay(1800)
       .style("opacity", 0.8);
 
     // Línea de referencia en 50%
@@ -357,7 +408,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .attr("opacity", 0)
       .transition()
       .duration(1000)
-      .delay(1400)
+      .delay(1600)
       .attr("opacity", 0.7);
 
     svg.append("text")
@@ -371,7 +422,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .text(`Meta: ${referenciaLinea}%`)
       .transition()
       .duration(800)
-      .delay(1600)
+      .delay(1800)
       .style("opacity", 1);
   };
 
@@ -406,16 +457,15 @@ const ObjetivoReutilizacion = ({ datos }) => {
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
     const margin = isMobile 
-      ? { top: 30, right: 20, bottom: 140, left: 70 }
+      ? { top: 30, right: 50, bottom: 60, left: 180 }
       : isTablet
-      ? { top: 35, right: 30, bottom: 130, left: 80 }
-      : { top: 40, right: 40, bottom: 120, left: 90 };
+      ? { top: 35, right: 60, bottom: 60, left: 220 }
+      : { top: 40, right: 80, bottom: 60, left: 260 };
     
-    // Tamaño mejorado
     const width = isMobile || isTablet 
       ? Math.max(300, containerWidth - 40) - margin.left - margin.right
       : 850 - margin.left - margin.right;
-    const height = isMobile ? 400 : isTablet ? 450 : 520;
+    const height = isMobile ? 300 : isTablet ? 350 : 400;
 
     const svg = d3
       .select(graficoResultadoRef.current)
@@ -427,74 +477,72 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Escalas mejoradas
-    const x = d3
+    // Escalas para Lollipop Chart horizontal
+    const y = d3
       .scaleBand()
-      .range([0, width])
+      .range([0, height])
       .domain(datosArray.map((d) => d.resultado))
-      .padding(0.18);
+      .padding(0.4);
 
-    const y = d3.scaleLinear()
+    const x = d3.scaleLinear()
       .domain([0, 100])
-      .range([height, 0])
+      .range([0, width])
       .nice();
 
-    // Colores únicos y distintivos para cada barra
-    const coloresResultado = [
+    // Colores para los puntos (dot plot)
+    const coloresDots = [
       "#00d9ff",  // Cyan brillante
-      "#6bcb77",  // Verde menta
+      "#00ff9f",  // Verde neón
       "#ff8c42",  // Naranja
       "#9d4edd",  // Púrpura vibrante
+      "#ff6b6b",  // Coral
+      "#ffd93d",  // Amarillo dorado
     ];
 
-    // Agregar grid horizontal
+    // Agregar grid vertical
     svg.append("g")
       .attr("class", "grid")
       .attr("opacity", 0.1)
       .call(
-        d3.axisLeft(y)
-          .tickSize(-width)
+        d3.axisBottom(x)
+          .tickSize(height)
           .tickFormat("")
       )
       .selectAll("line")
       .style("stroke", "#fff");
 
-    // Eje X mejorado con mejor manejo de texto
-    const xAxis = svg
+    // Eje Y (categorías) con mejor manejo de texto
+    const yAxis = svg
       .append("g")
-      .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickSizeOuter(0));
+      .call(d3.axisLeft(y).tickSizeOuter(0));
 
-    xAxis.selectAll("text")
-      .attr("transform", "rotate(-45)")
-      .style("text-anchor", "end")
+    yAxis.selectAll("text")
       .style("font-size", isMobile ? "11px" : "13px")
       .style("font-weight", "600")
       .style("fill", "#fff")
-      .attr("dx", "-0.5em")
-      .attr("dy", "0.15em")
       .each(function(d) {
         const texto = d;
-        const maxLength = isMobile ? 15 : isTablet ? 20 : 25;
+        const maxLength = isMobile ? 18 : isTablet ? 25 : 35;
         if (texto.length > maxLength) {
           d3.select(this).text(texto.substring(0, maxLength - 3) + "...");
         }
       });
 
-    xAxis.selectAll("line, path")
+    yAxis.selectAll("line, path")
       .style("stroke", "#fff")
       .style("stroke-width", 2);
 
-    // Eje Y mejorado
-    const yAxis = svg.append("g")
-      .call(d3.axisLeft(y).ticks(10).tickSizeOuter(0));
+    // Eje X
+    const xAxis = svg.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(x).ticks(10).tickSizeOuter(0));
 
-    yAxis.selectAll("text")
+    xAxis.selectAll("text")
       .style("font-size", "13px")
       .style("font-weight", "500")
       .style("fill", "#fff");
 
-    yAxis.selectAll("line, path")
+    xAxis.selectAll("line, path")
       .style("stroke", "#fff")
       .style("stroke-width", 2);
 
@@ -502,101 +550,100 @@ const ObjetivoReutilizacion = ({ datos }) => {
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", height + 100)
-      .style("text-anchor", "middle")
-      .style("font-size", "16px")
-      .style("font-weight", "600")
-      .style("fill", "#00d9ff")
-      .text("Resultado Final");
-
-    svg
-      .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", -60)
-      .attr("x", -height / 2)
+      .attr("y", height + 45)
       .style("text-anchor", "middle")
       .style("font-size", "16px")
       .style("font-weight", "600")
       .style("fill", "#00d9ff")
       .text("% de Reutilización");
 
-    // Crear tooltip mejorado
+    // Crear tooltip
     const tooltip = d3
       .select(graficoResultadoRef.current)
       .append("div")
       .attr("class", "tooltip-grafico")
       .style("opacity", 0);
 
-    // Barras con mejor diseño
-    const barras = svg
-      .selectAll(".barra")
+    // Líneas del lollipop (stems)
+    svg.selectAll(".lollipop-line")
       .data(datosArray)
       .enter()
-      .append("rect")
-      .attr("class", "barra")
-      .attr("x", (d) => x(d.resultado))
-      .attr("width", x.bandwidth())
-      .attr("y", height)
-      .attr("height", 0)
-      .attr("fill", (d, i) => coloresResultado[i % coloresResultado.length])
-      .attr("rx", 4)
-      .attr("ry", 4)
+      .append("line")
+      .attr("class", "lollipop-line")
+      .attr("x1", 0)
+      .attr("x2", 0)
+      .attr("y1", (d) => y(d.resultado) + y.bandwidth() / 2)
+      .attr("y2", (d) => y(d.resultado) + y.bandwidth() / 2)
+      .attr("stroke", (d, i) => coloresDots[i % coloresDots.length])
+      .attr("stroke-width", 3)
+      .attr("opacity", 0.6)
+      .style("filter", "drop-shadow(0 0 4px rgba(0,217,255,0.3))")
+      .transition()
+      .duration(1200)
+      .delay((d, i) => i * 120)
+      .attr("x2", (d) => x(d.porcentaje))
+      .ease(d3.easeCubicOut);
+
+    // Puntos (dots) del lollipop
+    const dots = svg.selectAll(".lollipop-dot")
+      .data(datosArray)
+      .enter()
+      .append("circle")
+      .attr("class", "lollipop-dot")
+      .attr("cx", 0)
+      .attr("cy", (d) => y(d.resultado) + y.bandwidth() / 2)
+      .attr("r", 0)
+      .attr("fill", (d, i) => coloresDots[i % coloresDots.length])
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 3)
       .style("cursor", "pointer")
+      .style("filter", "drop-shadow(0 0 8px rgba(0,217,255,0.5))")
       .on("mouseenter", function(event, d) {
         d3.select(this)
           .transition()
           .duration(200)
-          .attr("opacity", 1)
-          .attr("y", y(d.porcentaje) - 5)
-          .attr("height", height - y(d.porcentaje) + 5)
-          .style("filter", "drop-shadow(0 8px 12px rgba(0,0,0,0.5))");
+          .attr("r", isMobile ? 16 : 20)
+          .style("filter", "drop-shadow(0 0 15px rgba(0,217,255,1))");
         
         tooltip.transition().duration(200).style("opacity", 0.95);
-        const barIndex = datosArray.findIndex(item => item.resultado === d.resultado);
+        const dotIndex = datosArray.findIndex(item => item.resultado === d.resultado);
         tooltip
           .html(
-            `<strong>${d.resultado}</strong><br/>
+            `<strong style="color: ${coloresDots[dotIndex % coloresDots.length]}">${d.resultado}</strong><br/>
              Total estudiantes: <strong>${d.total}</strong><br/>
              Reutilizan: <strong>${d.reutilizan}</strong> (${d.porcentaje.toFixed(1)}%)<br/>
-             No reutilizan: <strong>${d.total - d.reutilizan}</strong><br/>
-             <small style="color: ${coloresResultado[barIndex % coloresResultado.length]}">■</small> Tasa de éxito`
+             No reutilizan: <strong>${d.total - d.reutilizan}</strong>`
           )
           .style("left", event.pageX + 10 + "px")
           .style("top", event.pageY - 28 + "px");
       })
-      .on("mouseleave", function(event, d) {
+      .on("mouseleave", function() {
         d3.select(this)
           .transition()
           .duration(200)
-          .attr("opacity", 0.85)
-          .attr("y", y(d.porcentaje))
-          .attr("height", height - y(d.porcentaje))
-          .style("filter", "drop-shadow(0 4px 6px rgba(0,0,0,0.3))");
+          .attr("r", isMobile ? 12 : 14)
+          .style("filter", "drop-shadow(0 0 8px rgba(0,217,255,0.5))");
         
         tooltip.transition().duration(200).style("opacity", 0);
       });
 
-    // Animación de entrada suave
-    barras
-      .attr("opacity", 0.85)
-      .style("filter", "drop-shadow(0 4px 6px rgba(0,0,0,0.3))")
-      .transition()
-      .duration(1400)
+    dots.transition()
+      .duration(1200)
       .delay((d, i) => i * 120)
-      .attr("y", (d) => y(d.porcentaje))
-      .attr("height", (d) => height - y(d.porcentaje))
+      .attr("cx", (d) => x(d.porcentaje))
+      .attr("r", isMobile ? 12 : 14)
       .ease(d3.easeCubicOut);
 
-    // Valores con mejor estilo
-    svg
-      .selectAll(".etiqueta-valor")
+    // Valores al lado de cada punto
+    svg.selectAll(".etiqueta-valor")
       .data(datosArray)
       .enter()
       .append("text")
       .attr("class", "etiqueta-valor")
-      .attr("x", (d) => x(d.resultado) + x.bandwidth() / 2)
-      .attr("y", height)
-      .attr("text-anchor", "middle")
+      .attr("x", 0)
+      .attr("y", (d) => y(d.resultado) + y.bandwidth() / 2)
+      .attr("dy", "0.35em")
+      .attr("text-anchor", "start")
       .style("font-size", isMobile ? "12px" : "14px")
       .style("font-weight", "700")
       .style("fill", "#fff")
@@ -605,19 +652,20 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .text((d) => `${d.porcentaje.toFixed(1)}%`)
       .transition()
       .duration(800)
-      .delay((d, i) => i * 120 + 700)
-      .attr("y", (d) => y(d.porcentaje) - 12)
+      .delay((d, i) => i * 120 + 800)
+      .attr("x", (d) => x(d.porcentaje) + 22)
       .style("opacity", 1);
 
-    // Destacar la barra con mayor porcentaje
+    // Destacar el punto con mayor porcentaje
     const maxPorcentaje = d3.max(datosArray, d => d.porcentaje);
     const mejorResultado = datosArray.find(d => d.porcentaje === maxPorcentaje);
     
     if (mejorResultado) {
       svg.append("text")
-        .attr("x", x(mejorResultado.resultado) + x.bandwidth() / 2)
-        .attr("y", y(mejorResultado.porcentaje) - 35)
-        .attr("text-anchor", "middle")
+        .attr("x", x(mejorResultado.porcentaje) + 55)
+        .attr("y", y(mejorResultado.resultado) + y.bandwidth() / 2)
+        .attr("dy", "0.35em")
+        .attr("text-anchor", "start")
         .style("font-size", "12px")
         .style("font-weight", "700")
         .style("fill", "#00ff9f")
@@ -633,10 +681,10 @@ const ObjetivoReutilizacion = ({ datos }) => {
     const referenciaLinea = 70;
     
     svg.append("line")
-      .attr("x1", 0)
-      .attr("x2", width)
-      .attr("y1", y(referenciaLinea))
-      .attr("y2", y(referenciaLinea))
+      .attr("x1", x(referenciaLinea))
+      .attr("x2", x(referenciaLinea))
+      .attr("y1", 0)
+      .attr("y2", height)
       .attr("stroke", "#00ff9f")
       .attr("stroke-width", 2.5)
       .attr("stroke-dasharray", "8,4")
@@ -647,9 +695,9 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .attr("opacity", 0.6);
 
     svg.append("text")
-      .attr("x", width - 5)
-      .attr("y", y(referenciaLinea) - 8)
-      .attr("text-anchor", "end")
+      .attr("x", x(referenciaLinea))
+      .attr("y", -10)
+      .attr("text-anchor", "middle")
       .style("font-size", "12px")
       .style("font-weight", "600")
       .style("fill", "#00ff9f")
