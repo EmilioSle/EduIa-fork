@@ -154,10 +154,17 @@ const ObjetivoUso = ({ datos }) => {
       .range([height, 0])
       .nice();
 
-    // Escala de color basada en cantidad
-    const colorScale = d3.scaleSequential()
-      .domain([0, d3.max(datosArray, d => d.cantidad)])
-      .interpolator(d3.interpolateTurbo);
+    // Colores únicos y distintivos para cada barra
+    const coloresBarras = [
+      "#00d9ff",  // Cyan brillante
+      "#ff6b6b",  // Coral/Rojo
+      "#ffd93d",  // Amarillo dorado
+      "#6bcb77",  // Verde menta
+      "#9d4edd",  // Púrpura vibrante
+      "#ff8c42",  // Naranja
+      "#4ecdc4",  // Turquesa
+      "#f72585",  // Rosa fuerte
+    ];
 
     // Agregar grid horizontal para mejor legibilidad
     svg.append("g")
@@ -243,7 +250,7 @@ const ObjetivoUso = ({ datos }) => {
       .attr("width", x.bandwidth())
       .attr("y", height)
       .attr("height", 0)
-      .attr("fill", d => colorScale(d.cantidad))
+      .attr("fill", (d, i) => coloresBarras[i % coloresBarras.length])
       .attr("rx", 4)
       .attr("ry", 4)
       .style("cursor", "pointer")

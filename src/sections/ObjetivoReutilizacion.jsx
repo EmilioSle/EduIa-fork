@@ -165,10 +165,14 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .range([height, 0])
       .nice();
 
-    // Escala de color dinámica según porcentaje
-    const colorScale = d3.scaleSequential()
-      .domain([0, 100])
-      .interpolator(d3.interpolatePlasma);
+    // Colores únicos y distintivos para cada barra
+    const coloresBarras = [
+      "#ff6b6b",  // Coral/Rojo
+      "#ffd93d",  // Amarillo dorado
+      "#6bcb77",  // Verde menta
+      "#4ecdc4",  // Turquesa
+      "#9d4edd",  // Púrpura vibrante
+    ];
 
     // Agregar grid horizontal
     svg.append("g")
@@ -251,7 +255,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .attr("width", x.bandwidth())
       .attr("y", height)
       .attr("height", 0)
-      .attr("fill", d => colorScale(d.porcentaje))
+      .attr("fill", (d, i) => coloresBarras[i % coloresBarras.length])
       .attr("rx", 4)
       .attr("ry", 4)
       .style("cursor", "pointer")
@@ -264,13 +268,14 @@ const ObjetivoReutilizacion = ({ datos }) => {
           .attr("height", height - y(d.porcentaje) + 5);
         
         tooltip.transition().duration(200).style("opacity", 0.95);
+        const barIndex = datosPorRango.findIndex(item => item.rango === d.rango);
         tooltip
           .html(
             `<strong>Satisfacción ${d.rango}</strong> (${d.sublabel})<br/>
              Total estudiantes: <strong>${d.total}</strong><br/>
              Reutilizan: <strong>${d.reutilizan}</strong> (${d.porcentaje.toFixed(1)}%)<br/>
              No reutilizan: <strong>${d.total - d.reutilizan}</strong><br/>
-             <small style="color: ${colorScale(d.porcentaje)}">■</small> Tasa de adopción`
+             <small style="color: ${coloresBarras[barIndex % coloresBarras.length]}">■</small> Tasa de adopción`
           )
           .style("left", event.pageX + 10 + "px")
           .style("top", event.pageY - 28 + "px");
@@ -434,10 +439,13 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .range([height, 0])
       .nice();
 
-    // Escala de color con gradiente cálido
-    const colorScale = d3.scaleSequential()
-      .domain([0, 100])
-      .interpolator(d3.interpolateWarm);
+    // Colores únicos y distintivos para cada barra
+    const coloresResultado = [
+      "#00d9ff",  // Cyan brillante
+      "#6bcb77",  // Verde menta
+      "#ff8c42",  // Naranja
+      "#9d4edd",  // Púrpura vibrante
+    ];
 
     // Agregar grid horizontal
     svg.append("g")
@@ -530,7 +538,7 @@ const ObjetivoReutilizacion = ({ datos }) => {
       .attr("width", x.bandwidth())
       .attr("y", height)
       .attr("height", 0)
-      .attr("fill", (d) => colorScale(d.porcentaje))
+      .attr("fill", (d, i) => coloresResultado[i % coloresResultado.length])
       .attr("rx", 4)
       .attr("ry", 4)
       .style("cursor", "pointer")
@@ -544,13 +552,14 @@ const ObjetivoReutilizacion = ({ datos }) => {
           .style("filter", "drop-shadow(0 8px 12px rgba(0,0,0,0.5))");
         
         tooltip.transition().duration(200).style("opacity", 0.95);
+        const barIndex = datosArray.findIndex(item => item.resultado === d.resultado);
         tooltip
           .html(
             `<strong>${d.resultado}</strong><br/>
              Total estudiantes: <strong>${d.total}</strong><br/>
              Reutilizan: <strong>${d.reutilizan}</strong> (${d.porcentaje.toFixed(1)}%)<br/>
              No reutilizan: <strong>${d.total - d.reutilizan}</strong><br/>
-             <small style="color: ${colorScale(d.porcentaje)}">■</small> Tasa de éxito`
+             <small style="color: ${coloresResultado[barIndex % coloresResultado.length]}">■</small> Tasa de éxito`
           )
           .style("left", event.pageX + 10 + "px")
           .style("top", event.pageY - 28 + "px");

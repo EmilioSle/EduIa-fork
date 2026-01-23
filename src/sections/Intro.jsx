@@ -92,19 +92,22 @@ const Intro = () => {
 
       // Efecto paralaje al hacer scroll - solo después de que termine la animación de entrada
       tlEntrada.call(() => {
+        // Scrub más alto = transición más suave y gradual
+        const scrubSuave = 2.5;
+        
         gsap.fromTo(tituloRef.current, 
           { y: 0, opacity: 1, scale: 1 },
           {
             scrollTrigger: {
               trigger: seccionRef.current,
               start: "top top",
-              end: "bottom top",
-              scrub: 1,
+              end: "80% top", // Termina antes para dar más tiempo
+              scrub: scrubSuave,
             },
-            y: -150,
-            opacity: 0.3,
-            scale: 0.9,
-            ease: "none",
+            y: -80,
+            opacity: 0.5, // No baja tanto
+            scale: 0.95,
+            ease: "power1.inOut", // Curva suave
           }
         );
 
@@ -114,12 +117,12 @@ const Intro = () => {
             scrollTrigger: {
               trigger: seccionRef.current,
               start: "top top",
-              end: "bottom top",
-              scrub: 1,
+              end: "80% top",
+              scrub: scrubSuave,
             },
-            y: -100,
-            opacity: 0.2,
-            ease: "none",
+            y: -60,
+            opacity: 0.4,
+            ease: "power1.inOut",
           }
         );
 
@@ -129,12 +132,12 @@ const Intro = () => {
             scrollTrigger: {
               trigger: seccionRef.current,
               start: "top top",
-              end: "bottom top",
-              scrub: 1,
+              end: "70% top",
+              scrub: scrubSuave,
             },
-            y: -50,
-            opacity: 0,
-            ease: "none",
+            y: -30,
+            opacity: 0.2,
+            ease: "power1.inOut",
           }
         );
 
@@ -143,12 +146,13 @@ const Intro = () => {
           {
             scrollTrigger: {
               trigger: seccionRef.current,
-              start: "top top",
+              start: "20% top", // Empieza más tarde
               end: "bottom top",
-              scrub: 1,
+              scrub: scrubSuave,
             },
-            opacity: 0,
-            y: -100,
+            opacity: 0.3,
+            y: -50,
+            ease: "power1.inOut",
           }
         );
         
