@@ -1,10 +1,41 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, memo } from "react";
 import * as d3 from "d3";
+
+// Número máximo de puntos a renderizar (para rendimiento)
+const MAX_PUNTOS = 500;
+
+/**
+ * Función de sampling estratificado para mantener representatividad
+ */
+const sampleData = (datos, maxPuntos) => {
+  if (datos.length <= maxPuntos) return datos;
+  
+  // Sampling estratificado por nivel de satisfacción para mantener distribución
+  const grupos = d3.group(datos, d => Math.round(d.satisfaccion));
+  const puntosPerGrupo = Math.floor(maxPuntos / grupos.size);
+  
+  const sampled = [];
+  grupos.forEach((grupo) => {
+    // Shuffle y tomar muestra del grupo
+    const shuffled = d3.shuffle([...grupo]);
+    sampled.push(...shuffled.slice(0, puntosPerGrupo));
+  });
+  
+  // Si faltan puntos, agregar aleatoriamente
+  if (sampled.length < maxPuntos) {
+    const remaining = datos.filter(d => !sampled.includes(d));
+    const shuffled = d3.shuffle([...remaining]);
+    sampled.push(...shuffled.slice(0, maxPuntos - sampled.length));
+  }
+  
+  return sampled;
+};
 
 /**
  * Scatter plot interactivo con zoom, brush y selección
+ * Optimizado con sampling para datasets grandes
  */
-const ScatterChartDuracion = ({ datos, onReady }) => {
+const ScatterChartDuracion = memo(({ datos, onReady }) => {
   const containerRef = useRef(null);
   const [filtroNivel, setFiltroNivel] = useState("todos");
 
@@ -25,6 +56,15 @@ const ScatterChartDuracion = ({ datos, onReady }) => {
 
     if (filtroNivel !== "todos") {
       datosValidos = datosValidos.filter(d => d.nivelEducativo === filtroNivel);
+    }
+
+    // Guardar total para mostrar en stats
+    const totalPuntos = datosValidos.length;
+    
+    // Aplicar sampling si hay demasiados puntos
+    const usandoSampling = datosValidos.length > MAX_PUNTOS;
+    if (usandoSampling) {
+      datosValidos = sampleData(datosValidos, MAX_PUNTOS);
     }
 
     // Obtener niveles únicos
@@ -125,7 +165,7 @@ const ScatterChartDuracion = ({ datos, onReady }) => {
     statsBox.append("span")
       .style("font-size", "12px")
       .style("color", "#888")
-      .html(`<span style="color:#6bcb77">📊</span> Puntos: <strong style="color:#fff">${datosValidos.length.toLocaleString()}</strong>`);
+      .html(`<span style="color:#6bcb77">📊</span> Puntos: <strong style="color:#fff">${usandoSampling ? `${datosValidos.length} de ${totalPuntos.toLocaleString()}` : totalPuntos.toLocaleString()}</strong>${usandoSampling ? ' <span style="color:#ffd93d;font-size:10px">(muestra)</span>' : ''}`);
 
     const svgContainer = wrapper.append("div")
       .style("position", "relative");
@@ -411,6 +451,6 @@ const ScatterChartDuracion = ({ datos, onReady }) => {
   };
 
   return <div ref={containerRef} className="grafico"></div>;
-};
+});
 
 export default ScatterChartDuracion;

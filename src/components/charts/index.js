@@ -6,6 +6,8 @@ export { default as LineChartAsistencia } from './LineChartAsistencia';
 export { default as AreaChartSatisfaccion } from './AreaChartSatisfaccion';
 export { default as LollipopChartResultado } from './LollipopChartResultado';
 export { default as BarChartOptimizado } from './BarChartOptimizado';
+export { default as ScatterParadojaChart } from './ScatterParadojaChart';
+export { default as SankeyParadojaChart } from './SankeyParadojaChart';
 
 // Gráficos avanzados con Recharts
 export { default as SankeyChartFlujo } from './SankeyChartFlujo';

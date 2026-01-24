@@ -2,12 +2,69 @@ import * as d3 from 'd3';
 
 // Cache en memoria para evitar recargas
 let datosCache = null;
+let agregacionesCache = null;
 let cacheTimestamp = null;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos (aumentado)
 
 // Cache en sessionStorage para persistir entre navegaciones
 const STORAGE_KEY = 'eduia_datos_cache';
 const STORAGE_TIMESTAMP_KEY = 'eduia_cache_timestamp';
+const STORAGE_AGREGACIONES_KEY = 'eduia_agregaciones_cache';
+
+/**
+ * Pre-calcula agregaciones comunes para evitar recálculos en cada gráfico
+ */
+const calcularAgregaciones = (datos) => {
+    console.log('⚡ Pre-calculando agregaciones...');
+    const inicio = performance.now();
+
+    const agregaciones = {
+        // Por nivel educativo
+        porNivel: d3.rollup(
+            datos,
+            v => ({
+                cantidad: v.length,
+                satisfaccionPromedio: d3.mean(v, d => d.satisfaccion),
+                duracionPromedio: d3.mean(v, d => d.duracionMinutos),
+                reutilizacion: (v.filter(d => d.usoPosterior === "Sí").length / v.length * 100),
+            }),
+            d => d.nivelEducativo
+        ),
+        // Por tipo de tarea
+        porTarea: d3.rollup(
+            datos,
+            v => ({
+                cantidad: v.length,
+                satisfaccionPromedio: d3.mean(v, d => d.satisfaccion),
+                duracionPromedio: d3.mean(v, d => d.duracionMinutos),
+            }),
+            d => d.tipoTarea
+        ),
+        // Por resultado
+        porResultado: d3.rollup(
+            datos,
+            v => ({
+                cantidad: v.length,
+                satisfaccionPromedio: d3.mean(v, d => d.satisfaccion),
+            }),
+            d => d.resultadoFinal
+        ),
+        // Valores únicos (para filtros)
+        nivelesUnicos: [...new Set(datos.map(d => d.nivelEducativo))],
+        tareasUnicas: [...new Set(datos.map(d => d.tipoTarea))],
+        resultadosUnicos: [...new Set(datos.map(d => d.resultadoFinal))],
+        // Estadísticas generales
+        stats: {
+            total: datos.length,
+            satisfaccionPromedio: d3.mean(datos, d => d.satisfaccion),
+            duracionPromedio: d3.mean(datos, d => d.duracionMinutos),
+            porcentajeReutilizacion: (datos.filter(d => d.usoPosterior === "Sí").length / datos.length * 100),
+        }
+    };
+
+    console.log(`✅ Agregaciones calculadas en ${(performance.now() - inicio).toFixed(2)}ms`);
+    return agregaciones;
+};
 
 export const cargarDatos = async () => {
     // 1. Intentar obtener de memoria (más rápido)
@@ -26,6 +83,10 @@ export const cargarDatos = async () => {
             if (Date.now() - timestamp < CACHE_DURATION) {
                 datosCache = JSON.parse(storedData);
                 cacheTimestamp = timestamp;
+                // Recalcular agregaciones si no están en memoria
+                if (!agregacionesCache) {
+                    agregacionesCache = calcularAgregaciones(datosCache);
+                }
                 console.log('✅ Datos cargados desde sessionStorage');
                 return datosCache;
             }
@@ -42,6 +103,9 @@ export const cargarDatos = async () => {
         d3.autoType
     );
 
+    // Pre-calcular agregaciones
+    agregacionesCache = calcularAgregaciones(datos);
+
     // Guardar en cache de memoria
     datosCache = datos;
     cacheTimestamp = Date.now();
@@ -56,6 +120,16 @@ export const cargarDatos = async () => {
     }
 
     return datos;
+};
+
+/**
+ * Obtiene las agregaciones pre-calculadas
+ */
+export const obtenerAgregaciones = () => {
+    if (!agregacionesCache && datosCache) {
+        agregacionesCache = calcularAgregaciones(datosCache);
+    }
+    return agregacionesCache;
 };
 
 // Función para limpiar cache manualmente si es necesario
