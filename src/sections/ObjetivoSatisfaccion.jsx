@@ -38,9 +38,20 @@ const ObjetivoSatisfaccion = ({ datos }) => {
         filter: "blur(12px)",
         duration: 1.3,
         ease: "power4.out",
+        onComplete: () => {
+          // Asegurar que termine en posición recta
+          gsap.set(".titulo-objetivo-2", {
+            x: 0,
+            rotationY: 0,
+            skewY: 0,
+            filter: "none",
+            opacity: 1,
+            transform: "none"
+          });
+        }
       });
 
-      // Efecto de glitch
+      // Efecto de glitch mejorado que termina recto
       gsap.to(".titulo-objetivo-2", {
         scrollTrigger: {
           trigger: seccionRef.current,
@@ -53,6 +64,16 @@ const ObjetivoSatisfaccion = ({ datos }) => {
         yoyo: true,
         delay: 1.3,
         ease: "power1.inOut",
+        onComplete: () => {
+          // Forzar que termine completamente recto
+          gsap.set(".titulo-objetivo-2", {
+            skewY: 0,
+            rotationY: 0,
+            x: 0,
+            transform: "none",
+            clearProps: "all"
+          });
+        }
       });
 
       ScrollTrigger.create({
