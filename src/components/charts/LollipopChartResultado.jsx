@@ -1,60 +1,126 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 
 /**
- * Lollipop Chart que muestra la reutilización según el resultado final
+ * Lollipop Chart interactivo con selección y comparativas
  */
 const LollipopChartResultado = ({ datos, onReady }) => {
   const containerRef = useRef(null);
+  const [ordenActivo, setOrdenActivo] = useState("porcentaje");
+  const [resultadoSeleccionado, setResultadoSeleccionado] = useState(null);
 
   useEffect(() => {
     if (!datos || !containerRef.current) return;
     crearGrafico();
-  }, [datos]);
+  }, [datos, ordenActivo, resultadoSeleccionado]);
 
   const crearGrafico = () => {
     if (!containerRef.current) return;
 
     d3.select(containerRef.current).selectAll("*").remove();
 
-    // Agrupar por resultado final
+    // Agrupar por resultado final con más detalle
+    const nivelesEducativos = [...new Set(datos.map(d => d.nivelEducativo))];
+    
     const datosPorResultado = d3.rollup(
       datos,
-      (v) => ({
-        total: v.length,
-        reutilizan: v.filter((d) => d.usoPosterior === "Sí").length,
-      }),
+      (v) => {
+        const porNivel = {};
+        nivelesEducativos.forEach(nivel => {
+          const datosNivel = v.filter(d => d.nivelEducativo === nivel);
+          porNivel[nivel] = {
+            total: datosNivel.length,
+            reutilizan: datosNivel.filter(d => d.usoPosterior === "Sí").length
+          };
+        });
+        return {
+          total: v.length,
+          reutilizan: v.filter((d) => d.usoPosterior === "Sí").length,
+          satisfaccionProm: d3.mean(v, d => d.satisfaccion),
+          duracionProm: d3.mean(v, d => d.duracionMinutos),
+          porNivel
+        };
+      },
       (d) => d.resultadoFinal
     );
 
-    const datosArray = Array.from(
+    let datosArray = Array.from(
       datosPorResultado,
       ([resultado, stats]) => ({
         resultado,
         porcentaje: (stats.reutilizan / stats.total) * 100,
         total: stats.total,
         reutilizan: stats.reutilizan,
+        satisfaccionProm: stats.satisfaccionProm,
+        duracionProm: stats.duracionProm,
+        porNivel: stats.porNivel
       })
-    ).sort((a, b) => b.porcentaje - a.porcentaje);
+    );
 
-    // Configuración responsiva mejorada
+    // Ordenar según criterio activo
+    if (ordenActivo === "porcentaje") {
+      datosArray.sort((a, b) => b.porcentaje - a.porcentaje);
+    } else if (ordenActivo === "total") {
+      datosArray.sort((a, b) => b.total - a.total);
+    } else if (ordenActivo === "alfabetico") {
+      datosArray.sort((a, b) => a.resultado.localeCompare(b.resultado));
+    }
+
+    // Wrapper
+    const wrapper = d3.select(containerRef.current)
+      .append("div")
+      .style("position", "relative");
+
+    // Controles
+    const controles = wrapper.append("div")
+      .style("display", "flex")
+      .style("gap", "12px")
+      .style("margin-bottom", "15px")
+      .style("flex-wrap", "wrap")
+      .style("align-items", "center");
+
+    controles.append("span")
+      .style("color", "#888")
+      .style("font-size", "13px")
+      .text("Ordenar por:");
+
+    const opciones = [
+      { id: "porcentaje", label: "📊 % Reutilización", color: "#00ff9f" },
+      { id: "total", label: "👥 Cantidad", color: "#00d9ff" },
+      { id: "alfabetico", label: "🔤 Alfabético", color: "#9d4edd" }
+    ];
+
+    opciones.forEach(opcion => {
+      controles.append("button")
+        .text(opcion.label)
+        .style("padding", "8px 14px")
+        .style("border-radius", "10px")
+        .style("border", `1px solid ${ordenActivo === opcion.id ? opcion.color : "rgba(255,255,255,0.15)"}`)
+        .style("background", ordenActivo === opcion.id ? `${opcion.color}22` : "transparent")
+        .style("color", ordenActivo === opcion.id ? opcion.color : "#888")
+        .style("font-size", "12px")
+        .style("font-weight", "500")
+        .style("cursor", "pointer")
+        .on("click", () => setOrdenActivo(opcion.id));
+    });
+
+    // Configuración responsiva
     const containerWidth = containerRef.current.clientWidth;
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
     const margin = isMobile 
       ? { top: 30, right: 50, bottom: 60, left: 180 }
-      : isTablet
-      ? { top: 35, right: 60, bottom: 60, left: 220 }
       : { top: 40, right: 80, bottom: 60, left: 260 };
     
     const width = isMobile || isTablet 
       ? Math.max(300, containerWidth - 40) - margin.left - margin.right
       : 850 - margin.left - margin.right;
-    const height = isMobile ? 300 : isTablet ? 350 : 400;
+    const height = isMobile ? 300 : 400;
 
-    const svg = d3
-      .select(containerRef.current)
+    const svgContainer = wrapper.append("div").style("position", "relative");
+
+    const svg = svgContainer
       .append("svg")
       .attr("width", isMobile || isTablet ? "100%" : width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
@@ -63,9 +129,8 @@ const LollipopChartResultado = ({ datos, onReady }) => {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Escalas para Lollipop Chart horizontal
-    const y = d3
-      .scaleBand()
+    // Escalas
+    const y = d3.scaleBand()
       .range([0, height])
       .domain(datosArray.map((d) => d.resultado))
       .padding(0.4);
@@ -75,82 +140,62 @@ const LollipopChartResultado = ({ datos, onReady }) => {
       .range([0, width])
       .nice();
 
-    // Colores para los puntos (dot plot)
-    const coloresDots = [
-      "#00d9ff",  // Cyan brillante
-      "#00ff9f",  // Verde neón
-      "#ff8c42",  // Naranja
-      "#9d4edd",  // Púrpura vibrante
-      "#ff6b6b",  // Coral
-      "#ffd93d",  // Amarillo dorado
-    ];
+    // Colores
+    const coloresDots = ["#00d9ff", "#00ff9f", "#ff8c42", "#9d4edd", "#ff6b6b", "#ffd93d"];
+    const coloresNivel = {
+      "Pregrado": "#00d9ff",
+      "Posgrado": "#9d4edd",
+      "Secundaria": "#ffd93d"
+    };
 
-    // Agregar grid vertical
+    // Grid
     svg.append("g")
       .attr("class", "grid")
       .attr("opacity", 0.1)
-      .call(
-        d3.axisBottom(x)
-          .tickSize(height)
-          .tickFormat("")
-      )
+      .call(d3.axisBottom(x).tickSize(height).tickFormat(""))
       .selectAll("line")
       .style("stroke", "#fff");
 
-    // Eje Y (categorías) con mejor manejo de texto
-    const yAxis = svg
-      .append("g")
-      .call(d3.axisLeft(y).tickSizeOuter(0));
-
+    // Eje Y
+    const yAxis = svg.append("g").call(d3.axisLeft(y).tickSizeOuter(0));
     yAxis.selectAll("text")
       .style("font-size", isMobile ? "11px" : "13px")
       .style("font-weight", "600")
-      .style("fill", "#fff")
+      .style("fill", d => resultadoSeleccionado === d ? "#fff" : "#aaa")
+      .style("cursor", "pointer")
       .each(function(d) {
-        const texto = d;
-        const maxLength = isMobile ? 18 : isTablet ? 25 : 35;
-        if (texto.length > maxLength) {
-          d3.select(this).text(texto.substring(0, maxLength - 3) + "...");
+        const maxLength = isMobile ? 18 : 35;
+        if (d.length > maxLength) {
+          d3.select(this).text(d.substring(0, maxLength - 3) + "...");
         }
+      })
+      .on("click", function(event, d) {
+        setResultadoSeleccionado(resultadoSeleccionado === d ? null : d);
       });
 
-    yAxis.selectAll("line, path")
-      .style("stroke", "#fff")
-      .style("stroke-width", 2);
+    yAxis.selectAll("line, path").style("stroke", "#fff").style("stroke-width", 2);
 
     // Eje X
     const xAxis = svg.append("g")
       .attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x).ticks(10).tickSizeOuter(0));
 
-    xAxis.selectAll("text")
-      .style("font-size", "13px")
-      .style("font-weight", "500")
-      .style("fill", "#fff");
+    xAxis.selectAll("text").style("font-size", "13px").style("font-weight", "500").style("fill", "#fff");
+    xAxis.selectAll("line, path").style("stroke", "#fff").style("stroke-width", 2);
 
-    xAxis.selectAll("line, path")
-      .style("stroke", "#fff")
-      .style("stroke-width", 2);
-
-    // Etiquetas de ejes
-    svg
-      .append("text")
-      .attr("x", width / 2)
-      .attr("y", height + 45)
-      .style("text-anchor", "middle")
-      .style("font-size", "16px")
-      .style("font-weight", "600")
-      .style("fill", "#00d9ff")
+    svg.append("text")
+      .attr("x", width / 2).attr("y", height + 45)
+      .style("text-anchor", "middle").style("font-size", "16px").style("font-weight", "600").style("fill", "#00d9ff")
       .text("% de Reutilización");
 
-    // Crear tooltip
-    const tooltip = d3
-      .select(containerRef.current)
-      .append("div")
-      .attr("class", "tooltip-grafico")
-      .style("opacity", 0);
+    // Tooltip
+    const tooltip = svgContainer.append("div")
+      .style("position", "absolute")
+      .style("opacity", 0)
+      .style("pointer-events", "none")
+      .style("z-index", "100");
 
-    // Líneas del lollipop (stems)
+    // Líneas del lollipop
     svg.selectAll(".lollipop-line")
       .data(datosArray)
       .enter()
@@ -158,100 +203,120 @@ const LollipopChartResultado = ({ datos, onReady }) => {
       .attr("class", "lollipop-line")
       .attr("x1", 0)
       .attr("x2", 0)
-      .attr("y1", (d) => y(d.resultado) + y.bandwidth() / 2)
-      .attr("y2", (d) => y(d.resultado) + y.bandwidth() / 2)
+      .attr("y1", d => y(d.resultado) + y.bandwidth() / 2)
+      .attr("y2", d => y(d.resultado) + y.bandwidth() / 2)
       .attr("stroke", (d, i) => coloresDots[i % coloresDots.length])
       .attr("stroke-width", 3)
-      .attr("opacity", 0.6)
-      .style("filter", "drop-shadow(0 0 4px rgba(0,217,255,0.3))")
+      .attr("opacity", d => resultadoSeleccionado && resultadoSeleccionado !== d.resultado ? 0.2 : 0.6)
       .transition()
       .duration(1200)
-      .delay((d, i) => i * 120)
-      .attr("x2", (d) => x(d.porcentaje))
-      .ease(d3.easeCubicOut);
+      .delay((d, i) => i * 100)
+      .attr("x2", d => x(d.porcentaje));
 
-    // Puntos (dots) del lollipop
-    const dots = svg.selectAll(".lollipop-dot")
+    // Puntos interactivos
+    svg.selectAll(".lollipop-dot")
       .data(datosArray)
       .enter()
       .append("circle")
       .attr("class", "lollipop-dot")
       .attr("cx", 0)
-      .attr("cy", (d) => y(d.resultado) + y.bandwidth() / 2)
+      .attr("cy", d => y(d.resultado) + y.bandwidth() / 2)
       .attr("r", 0)
       .attr("fill", (d, i) => coloresDots[i % coloresDots.length])
       .attr("stroke", "#fff")
       .attr("stroke-width", 3)
       .style("cursor", "pointer")
-      .style("filter", "drop-shadow(0 0 8px rgba(0,217,255,0.5))")
+      .attr("opacity", d => resultadoSeleccionado && resultadoSeleccionado !== d.resultado ? 0.3 : 1)
       .on("mouseenter", function(event, d) {
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr("r", isMobile ? 16 : 20)
-          .style("filter", "drop-shadow(0 0 15px rgba(0,217,255,1))");
+        const idx = datosArray.findIndex(item => item.resultado === d.resultado);
+        d3.select(this).transition().duration(150).attr("r", 20);
         
-        tooltip.transition().duration(200).style("opacity", 0.95);
-        const dotIndex = datosArray.findIndex(item => item.resultado === d.resultado);
-        tooltip
-          .html(
-            `<strong style="color: ${coloresDots[dotIndex % coloresDots.length]}">${d.resultado}</strong><br/>
-             Total estudiantes: <strong>${d.total}</strong><br/>
-             Reutilizan: <strong>${d.reutilizan}</strong> (${d.porcentaje.toFixed(1)}%)<br/>
-             No reutilizan: <strong>${d.total - d.reutilizan}</strong>`
-          )
-          .style("left", event.pageX + 10 + "px")
-          .style("top", event.pageY - 28 + "px");
+        tooltip.transition().duration(150).style("opacity", 1);
+        tooltip.html(`
+          <div style="padding: 14px; background: rgba(10, 14, 39, 0.98); border-radius: 12px; border: 2px solid ${coloresDots[idx % coloresDots.length]}; box-shadow: 0 10px 40px rgba(0,0,0,0.5); min-width: 220px;">
+            <div style="font-size: 15px; font-weight: 700; color: ${coloresDots[idx % coloresDots.length]}; margin-bottom: 10px;">${d.resultado}</div>
+            <div style="display: grid; gap: 6px;">
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #888;">👥 Total:</span>
+                <span style="color: #fff; font-weight: 600;">${d.total.toLocaleString()}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #888;">✅ Reutilizan:</span>
+                <span style="color: #00ff9f; font-weight: 700;">${d.reutilizan.toLocaleString()} (${d.porcentaje.toFixed(1)}%)</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #888;">⭐ Satisfacción:</span>
+                <span style="color: #ffd93d; font-weight: 600;">${d.satisfaccionProm.toFixed(2)}/5</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #888;">⏱️ Duración prom:</span>
+                <span style="color: #fff;">${d.duracionProm.toFixed(0)} min</span>
+              </div>
+            </div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 8px;">
+              <div style="font-size: 11px; color: #888; margin-bottom: 6px;">Click para ver detalles</div>
+            </div>
+          </div>
+        `);
+        // Ajustar posición para no salirse del contenedor
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const tooltipWidth = 260;
+        let leftPos = event.offsetX + 15;
+        if (event.offsetX + tooltipWidth > containerRect.width - 20) {
+          leftPos = event.offsetX - tooltipWidth - 15;
+        }
+        tooltip.style("left", leftPos + "px").style("top", (event.offsetY - 10) + "px");
+      })
+      .on("mousemove", function(event) {
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const tooltipWidth = 260;
+        let leftPos = event.offsetX + 15;
+        if (event.offsetX + tooltipWidth > containerRect.width - 20) {
+          leftPos = event.offsetX - tooltipWidth - 15;
+        }
+        tooltip.style("left", leftPos + "px").style("top", (event.offsetY - 10) + "px");
       })
       .on("mouseleave", function() {
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr("r", isMobile ? 12 : 14)
-          .style("filter", "drop-shadow(0 0 8px rgba(0,217,255,0.5))");
-        
-        tooltip.transition().duration(200).style("opacity", 0);
-      });
-
-    dots.transition()
+        d3.select(this).transition().duration(150).attr("r", 14);
+        tooltip.transition().duration(150).style("opacity", 0);
+      })
+      .on("click", function(event, d) {
+        setResultadoSeleccionado(resultadoSeleccionado === d.resultado ? null : d.resultado);
+      })
+      .transition()
       .duration(1200)
-      .delay((d, i) => i * 120)
-      .attr("cx", (d) => x(d.porcentaje))
-      .attr("r", isMobile ? 12 : 14)
-      .ease(d3.easeCubicOut);
+      .delay((d, i) => i * 100)
+      .attr("cx", d => x(d.porcentaje))
+      .attr("r", 14);
 
-    // Valores al lado de cada punto
+    // Etiquetas de valor
     svg.selectAll(".etiqueta-valor")
       .data(datosArray)
       .enter()
       .append("text")
-      .attr("class", "etiqueta-valor")
       .attr("x", 0)
-      .attr("y", (d) => y(d.resultado) + y.bandwidth() / 2)
+      .attr("y", d => y(d.resultado) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
-      .attr("text-anchor", "start")
-      .style("font-size", isMobile ? "12px" : "14px")
+      .style("font-size", "14px")
       .style("font-weight", "700")
       .style("fill", "#fff")
       .style("opacity", 0)
-      .style("text-shadow", "0 0 5px rgba(0,0,0,0.8)")
-      .text((d) => `${d.porcentaje.toFixed(1)}%`)
+      .text(d => `${d.porcentaje.toFixed(1)}%`)
       .transition()
       .duration(800)
-      .delay((d, i) => i * 120 + 800)
-      .attr("x", (d) => x(d.porcentaje) + 22)
-      .style("opacity", 1);
+      .delay((d, i) => i * 100 + 800)
+      .attr("x", d => x(d.porcentaje) + 22)
+      .style("opacity", d => resultadoSeleccionado && resultadoSeleccionado !== d.resultado ? 0.3 : 1);
 
-    // Destacar el punto con mayor porcentaje
+    // Destacar mejor resultado
     const maxPorcentaje = d3.max(datosArray, d => d.porcentaje);
     const mejorResultado = datosArray.find(d => d.porcentaje === maxPorcentaje);
     
-    if (mejorResultado) {
+    if (mejorResultado && !resultadoSeleccionado) {
       svg.append("text")
         .attr("x", x(mejorResultado.porcentaje) + 55)
         .attr("y", y(mejorResultado.resultado) + y.bandwidth() / 2)
         .attr("dy", "0.35em")
-        .attr("text-anchor", "start")
         .style("font-size", "12px")
         .style("font-weight", "700")
         .style("fill", "#00ff9f")
@@ -263,14 +328,126 @@ const LollipopChartResultado = ({ datos, onReady }) => {
         .style("opacity", 1);
     }
 
-    // Línea de referencia en 70% (alto rendimiento)
-    const referenciaLinea = 70;
-    
+    // Panel de detalle si hay selección
+    if (resultadoSeleccionado) {
+      const datosResultado = datosArray.find(d => d.resultado === resultadoSeleccionado);
+      if (datosResultado) {
+        const idx = datosArray.findIndex(d => d.resultado === resultadoSeleccionado);
+        
+        const panel = wrapper.append("div")
+          .style("margin-top", "20px")
+          .style("padding", "20px")
+          .style("background", "rgba(0,0,0,0.3)")
+          .style("border-radius", "16px")
+          .style("border", `2px solid ${coloresDots[idx % coloresDots.length]}`)
+          .style("animation", "fadeIn 0.3s ease");
+
+        panel.append("div")
+          .style("display", "flex")
+          .style("justify-content", "space-between")
+          .style("align-items", "center")
+          .style("margin-bottom", "15px")
+          .html(`
+            <span style="font-size: 16px; font-weight: 700; color: ${coloresDots[idx % coloresDots.length]};">
+              📊 ${resultadoSeleccionado}
+            </span>
+            <span style="font-size: 12px; color: #888; cursor: pointer;" onclick="this.parentElement.parentElement.remove()">✕ Cerrar</span>
+          `);
+
+        // Estadísticas generales
+        const stats = panel.append("div")
+          .style("display", "grid")
+          .style("grid-template-columns", "repeat(4, 1fr)")
+          .style("gap", "15px")
+          .style("margin-bottom", "20px");
+
+        const statsData = [
+          { label: "Reutilización", value: `${datosResultado.porcentaje.toFixed(1)}%`, color: "#00ff9f" },
+          { label: "Estudiantes", value: datosResultado.total.toLocaleString(), color: "#00d9ff" },
+          { label: "Satisfacción", value: `${datosResultado.satisfaccionProm.toFixed(2)}/5`, color: "#ffd93d" },
+          { label: "Duración Prom", value: `${datosResultado.duracionProm.toFixed(0)} min`, color: "#9d4edd" }
+        ];
+
+        statsData.forEach(stat => {
+          const card = stats.append("div")
+            .style("text-align", "center")
+            .style("padding", "12px")
+            .style("background", "rgba(255,255,255,0.03)")
+            .style("border-radius", "10px");
+
+          card.append("div")
+            .style("font-size", "24px")
+            .style("font-weight", "700")
+            .style("color", stat.color)
+            .text(stat.value);
+
+          card.append("div")
+            .style("font-size", "11px")
+            .style("color", "#888")
+            .style("margin-top", "4px")
+            .text(stat.label);
+        });
+
+        // Desglose por nivel educativo
+        panel.append("div")
+          .style("font-size", "13px")
+          .style("font-weight", "600")
+          .style("color", "#fff")
+          .style("margin-bottom", "12px")
+          .text("Reutilización por Nivel Educativo:");
+
+        const nivelesGrid = panel.append("div")
+          .style("display", "grid")
+          .style("grid-template-columns", "repeat(3, 1fr)")
+          .style("gap", "12px");
+
+        Object.entries(datosResultado.porNivel).forEach(([nivel, data]) => {
+          const pct = data.total > 0 ? (data.reutilizan / data.total * 100) : 0;
+          
+          const nivelCard = nivelesGrid.append("div")
+            .style("padding", "12px")
+            .style("background", `${coloresNivel[nivel]}11`)
+            .style("border", `1px solid ${coloresNivel[nivel]}44`)
+            .style("border-radius", "10px");
+
+          nivelCard.append("div")
+            .style("font-size", "12px")
+            .style("color", coloresNivel[nivel])
+            .style("font-weight", "600")
+            .style("margin-bottom", "6px")
+            .text(nivel);
+
+          nivelCard.append("div")
+            .style("font-size", "22px")
+            .style("font-weight", "700")
+            .style("color", "#fff")
+            .text(`${pct.toFixed(1)}%`);
+
+          nivelCard.append("div")
+            .style("font-size", "10px")
+            .style("color", "#888")
+            .text(`${data.reutilizan} de ${data.total}`);
+
+          // Mini barra
+          const bar = nivelCard.append("div")
+            .style("margin-top", "8px")
+            .style("height", "4px")
+            .style("background", "rgba(255,255,255,0.1)")
+            .style("border-radius", "2px");
+
+          bar.append("div")
+            .style("width", `${pct}%`)
+            .style("height", "100%")
+            .style("background", coloresNivel[nivel])
+            .style("border-radius", "2px");
+        });
+      }
+    }
+
+    // Línea de referencia
     svg.append("line")
-      .attr("x1", x(referenciaLinea))
-      .attr("x2", x(referenciaLinea))
-      .attr("y1", 0)
-      .attr("y2", height)
+      .attr("x1", x(70)).attr("x2", x(70))
+      .attr("y1", 0).attr("y2", height)
       .attr("stroke", "#00ff9f")
       .attr("stroke-width", 2.5)
       .attr("stroke-dasharray", "8,4")
@@ -281,14 +458,13 @@ const LollipopChartResultado = ({ datos, onReady }) => {
       .attr("opacity", 0.6);
 
     svg.append("text")
-      .attr("x", x(referenciaLinea))
-      .attr("y", -10)
+      .attr("x", x(70)).attr("y", -10)
       .attr("text-anchor", "middle")
       .style("font-size", "12px")
       .style("font-weight", "600")
       .style("fill", "#00ff9f")
       .style("opacity", 0)
-      .text(`Meta: ${referenciaLinea}%`)
+      .text("Meta: 70%")
       .transition()
       .duration(800)
       .delay(1600)

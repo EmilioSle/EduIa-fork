@@ -1,10 +1,62 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=1" />
+    
+    <!-- Meta tags de rendimiento -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="#0a0e27" />
+    
+    <!-- DNS Prefetch para recursos externos -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    
+    <!-- Preconnect para recursos críticos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Preload del CSV (recurso crítico) -->
+    <link rel="preload" href="/datos_limpios.csv" as="fetch" crossorigin />
+    
+    <!-- Meta descripción para SEO -->
+    <meta name="description" content="EduIA - Visualización interactiva del uso de asistentes de IA en la vida estudiantil. Análisis de 10,000 sesiones." />
+    
     <title>EduIA – Visualización</title>
+    
+    <!-- Inline critical CSS para evitar FOUC -->
+    <style>
+      :root {
+        --color-fondo: #0a0e27;
+      }
+      body {
+        margin: 0;
+        background-color: var(--color-fondo);
+      }
+      .cargando {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: var(--color-fondo);
+        color: #fff;
+      }
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(0, 217, 255, 0.2);
+        border-top-color: #00d9ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

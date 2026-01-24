@@ -6,6 +6,7 @@ import imagen4 from "../assets/images/imagen4.png";
 import imagen5 from "../assets/images/imagen5.png";
 import { OBJETIVOS_ANALITICOS } from "../utils/objetivos";
 import { ScatterChartDuracion, LineChartAsistencia } from "../components/charts";
+import FiltrosGrafico from "../components/FiltrosGrafico";
 import "../styles/objetivo.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -16,6 +17,8 @@ const ObjetivoSatisfaccion = ({ datos }) => {
   const graficoLineRef = useRef(null);
   const [scatterVisible, setScatterVisible] = useState(false);
   const [lineaVisible, setLineaVisible] = useState(false);
+  const [datosScatter, setDatosScatter] = useState(null);
+  const [datosLinea, setDatosLinea] = useState(null);
 
   const objetivo = OBJETIVOS_ANALITICOS[1];
 
@@ -84,56 +87,81 @@ const ObjetivoSatisfaccion = ({ datos }) => {
         <div className="encabezado-objetivo">
           <h2 className="titulo-objetivo titulo-objetivo-2">{objetivo.titulo}</h2>
           <p className="descripcion-objetivo">
-            Conocer los números es importante, pero la satisfacción cuenta la 
-            historia real. ¿Qué hace que un estudiante termine su sesión sintiéndose 
-            ayudado versus frustrado? Los datos revelan patrones sorprendentes...
+            Sabemos quiénes usan la IA. Ahora la pregunta es más profunda: 
+            <strong>¿terminan contentos?</strong> Porque usar una herramienta no 
+            significa que funcione. Aquí es donde los datos nos sorprenden con 
+            verdades que desafían la lógica convencional...
           </p>
         </div>
 
         <div className="grafico-contenedor">
-          <h3 className="titulo-grafico">El Mito del "Más es Mejor"</h3>
+          <div className="grafico-header">
+            <h3 className="titulo-grafico">La Paradoja del Tiempo: Más No Es Mejor</h3>
+            {datos && (
+              <FiltrosGrafico 
+                datos={datos} 
+                onFiltrar={setDatosScatter}
+                mostrarNivel={true}
+                mostrarDisciplina={true}
+                mostrarResultado={false}
+              />
+            )}
+          </div>
           <div ref={graficoScatterRef} className="grafico-wrapper grafico-wrapper-grande">
             {scatterVisible && datos && (
               <div className="grafico-entrada">
-                <ScatterChartDuracion datos={datos} />
+                <ScatterChartDuracion datos={datosScatter || datos} />
               </div>
             )}
           </div>
           <img src={imagen4} alt="Relación duración y satisfacción" className="imagen-grafico imagen-grafico-pequena" />
           <p className="explicacion-grafico">
-            <Clock className="icono-inline" size={20} strokeWidth={1.5} /> <strong>Descubrimiento contraintuitivo:</strong> Las sesiones más 
-            largas no garantizan mayor satisfacción. De hecho, la relación es más 
-            compleja. Los estudiantes más satisfechos tienden a tener sesiones 
-            enfocadas y eficientes, no necesariamente las más largas. ¿La lección? 
-            La calidad supera a la cantidad.
+            <Clock className="icono-inline" size={20} strokeWidth={1.5} /> <strong>Contraintuitivo pero cierto:</strong> Esperarías que 
+            sesiones más largas = estudiantes más satisfechos. Los datos dicen lo contrario. 
+            Las sesiones más cortas y enfocadas superan a las maratónicas. ¿Por qué? 
+            Porque <em>resolver rápido</em> es mejor que <em>luchar durante horas</em>. 
+            El tiempo invertido no predice satisfacción. La <strong>eficiencia</strong> sí.
           </p>
         </div>
 
         <div className="grafico-contenedor">
-          <h3 className="titulo-grafico">El Factor Decisivo: Nivel de Asistencia</h3>
+          <div className="grafico-header">
+            <h3 className="titulo-grafico">El Secreto Revelado: Cuando la IA Realmente Ayuda</h3>
+            {datos && (
+              <FiltrosGrafico 
+                datos={datos} 
+                onFiltrar={setDatosLinea}
+                mostrarNivel={true}
+                mostrarDisciplina={true}
+                mostrarResultado={false}
+              />
+            )}
+          </div>
           <div ref={graficoLineRef} className="grafico-wrapper">
             {lineaVisible && datos && (
               <div className="grafico-entrada">
-                <LineChartAsistencia datos={datos} />
+                <LineChartAsistencia datos={datosLinea || datos} />
               </div>
             )}
           </div>
           <img src={imagen5} alt="Nivel de asistencia y satisfacción" className="imagen-grafico" />
           <p className="explicacion-grafico">
-            <Target className="icono-inline" size={20} strokeWidth={1.5} /> <strong>La correlación que importa:</strong> Cuando la IA realmente 
-            ayuda (niveles de asistencia altos), la satisfacción se dispara. Esto 
-            valida algo fundamental: los estudiantes no buscan que la IA haga su 
-            trabajo, buscan que los ayude a hacerlo mejor.
+            <Target className="icono-inline" size={20} strokeWidth={1.5} /> <strong>Aquí está la clave:</strong> Observa cómo la curva sube 
+            cuando el nivel de asistencia aumenta. No es casualidad. Los estudiantes 
+            no quieren respuestas fáciles — quieren <em>sentirse ayudados de verdad</em>. 
+            La IA que solo da respuestas rápidas no genera satisfacción. 
+            La que <strong>guía, explica y asiste</strong> sí lo hace.
           </p>
         </div>
 
         <div className="conclusion-seccion">
           <Search className="icono-conclusion-seccion" size={40} strokeWidth={1.5} />
           <p className="texto-conclusion">
-            <strong>La Verdad Revelada:</strong> La satisfacción no se trata de 
-            interacciones largas o respuestas rápidas. Se trata de asistencia 
-            efectiva que verdaderamente ayuda al estudiante a alcanzar sus objetivos 
-            académicos.
+            <strong>🔑 Segunda lección:</strong> Olvídate del tiempo en pantalla. 
+            La satisfacción no se construye con horas, se construye con 
+            <strong>asistencia que realmente resuelve</strong>. Los estudiantes 
+            detectan la diferencia entre una IA que responde y una que <em>ayuda</em>. 
+            Y los datos lo confirman sin ambigüedad.
           </p>
         </div>
       </div>

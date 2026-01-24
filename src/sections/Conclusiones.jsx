@@ -60,14 +60,14 @@ const Conclusiones = () => {
     <section ref={seccionRef} className="seccion-conclusiones">
       <div className="contenido-conclusiones">
         <h2 ref={tituloRef} className="titulo-conclusiones">
-          El Final de una Historia, El Comienzo de una Era
+          Tres Lecciones de 10,000 Historias
         </h2>
 
         <div className="introduccion-conclusiones">
           <p>
-            Hemos viajado a través de cientos de sesiones, miles de interacciones, 
-            y un patrón emergente que no puede ser ignorado. La IA en la educación 
-            no es el futuro — es el presente. Y los datos cuentan una historia clara.
+            Comenzamos con curiosidad. Terminamos con certezas — algunas esperadas, 
+            otras que desafían todo lo que creíamos saber. Estos datos no solo 
+            describen el presente; <strong>predicen hacia dónde vamos</strong>.
           </p>
           <img src={imagen8} alt="El comienzo de una era" className="imagen-intro-conclusiones" />
         </div>
@@ -76,12 +76,12 @@ const Conclusiones = () => {
           <div className="punto-conclusion">
             <BookOpen className="icono-conclusion" size={48} strokeWidth={1.5} />
             <div className="texto-punto">
-              <h3>Capítulo 1: La Adopción Es Real</h3>
+              <h3>📚 Lección #1: La Adopción Es Total (y Diversa)</h3>
               <p>
-                Ya no estamos hablando de experimentos o casos aislados. Los estudiantes 
-                de pregrado han abrazado la IA como una herramienta esencial, usándola 
-                para todo, desde estudiar hasta programar. Es tan común como Google, 
-                tan natural como tomar apuntes. La revolución silenciosa ya sucedió.
+                Olvida la imagen del "nerd" usando IA. Estudiantes de todas las disciplinas, 
+                todos los niveles, la usan. Y no para hacer trampa — para <strong>aprender</strong>. 
+                La herramienta que muchos temieron se convirtió en el tutor más accesible 
+                de la historia. Disponible 24/7, sin juicios, infinita paciencia.
               </p>
             </div>
           </div>
@@ -89,13 +89,12 @@ const Conclusiones = () => {
           <div className="punto-conclusion">
             <Lightbulb className="icono-conclusion" size={48} strokeWidth={1.5} />
             <div className="texto-punto">
-              <h3>Capítulo 2: La Calidad Sobre la Cantidad</h3>
+              <h3>⏱️ Lección #2: La Eficiencia Vence al Tiempo</h3>
               <p>
-                Una lección contraintuitiva: pasar más tiempo no significa mejores 
-                resultados. Los estudiantes más satisfechos tienen sesiones enfocadas 
-                y efectivas. La IA que verdaderamente ayuda no necesita horas de tu 
-                tiempo, necesita entender lo que necesitas. Es la diferencia entre 
-                un tutor que divaga y uno que va directo al punto.
+                Una sesión de 15 minutos que resuelve el problema supera a una maratón 
+                de 3 horas sin resultados. Los estudiantes no quieren pasar más tiempo 
+                con la IA — quieren pasar el <strong>tiempo justo</strong>. 
+                La satisfacción no se mide en minutos. Se mide en problemas resueltos.
               </p>
             </div>
           </div>
@@ -103,14 +102,13 @@ const Conclusiones = () => {
           <div className="punto-conclusion">
             <Trophy className="icono-conclusion" size={48} strokeWidth={1.5} />
             <div className="texto-punto">
-              <h3>Capítulo 3: Resultados &gt; Satisfacción</h3>
+              <h3>🎯 Lección #3: Resultados > Sentimientos (El Plot Twist)</h3>
               <p>
-                Un descubrimiento contraintuitivo: la satisfacción subjetiva no predice 
-                la reutilización tan fuertemente como esperábamos. Los estudiantes vuelven 
-                cuando la IA les ayuda a <strong>lograr resultados concretos</strong>, no 
-                solo cuando "se sienten bien". Esto cambia todo: la efectividad medible 
-                supera a la experiencia agradable. Los estudiantes son pragmáticos, no 
-                sentimentales.
+                Aquí está el hallazgo que desafía la sabiduría convencional: la satisfacción 
+                <em>no predice</em> si volverán. Lo que importa es si <strong>lograron su objetivo</strong>. 
+                Tarea completada = usuario que vuelve. Experiencia "agradable" sin resultado = 
+                usuario que busca alternativas. Los estudiantes son pragmáticos. Y los datos 
+                lo confirman sin piedad.
               </p>
             </div>
           </div>
@@ -118,13 +116,13 @@ const Conclusiones = () => {
           <div className="punto-conclusion">
             <Target className="icono-conclusion" size={48} strokeWidth={1.5} />
             <div className="texto-punto">
-              <h3>Capítulo 4: El Éxito Es Contagioso</h3>
+              <h3>📊 Implicaciones para el Futuro</h3>
               <p>
-                Cuando un estudiante logra completar su tarea con ayuda de la IA, 
-                algo cambia. No solo está satisfecho, está convencido. El éxito 
-                tangible construye confianza, y la confianza construye lealtad. 
-                Hemos visto el patrón una y otra vez: éxito lleva a más uso, 
-                más uso lleva a más éxito. Un círculo virtuoso imparable.
+                Para desarrolladores de IA: dejen de optimizar métricas de vanidad. 
+                Optimicen <strong>tareas completadas</strong>. Para educadores: la IA 
+                no es el enemigo — es el aliado más poderoso si se usa bien. 
+                Para estudiantes: sean estratégicos, no dependientes. La herramienta 
+                funciona cuando <em>vos</em> sabés lo que querés lograr.
               </p>
             </div>
           </div>
@@ -132,37 +130,36 @@ const Conclusiones = () => {
           <div className="punto-conclusion">
             <Rocket className="icono-conclusion" size={48} strokeWidth={1.5} />
             <div className="texto-punto">
-              <h3>Epílogo: La Nueva Normalidad</h3>
+              <h3>🚀 El Umbral Cruzado</h3>
               <p>
-                Si hay algo que estos datos dejan absolutamente claro es esto: 
-                la integración de la IA en la educación no es reversible. Los 
-                estudiantes que la han probado y ha funcionado para ellos no 
-                retrocederán. Hemos cruzado un umbral. La pregunta ya no es 
-                "¿debemos usar IA?" sino "¿cómo la usamos mejor?"
+                No hay vuelta atrás. Los estudiantes que encontraron éxito con la IA 
+                no abandonarán la herramienta. Pero esto no es un final — es un comienzo. 
+                La pregunta ya no es <em>"¿usamos IA?"</em> sino <em>"¿cómo la usamos 
+                para aprender más, no menos?"</em> Los datos nos dieron pistas. 
+                El resto es nuestra responsabilidad.
               </p>
             </div>
           </div>
         </div>
 
         <div className="mensaje-final">
-          <h3 className="titulo-mensaje-final">La Historia Continúa...</h3>
+          <h3 className="titulo-mensaje-final">Lo Que Los Datos Nos Enseñaron</h3>
           <p>
-            Los datos nos han enseñado lecciones valiosas, algunas esperadas y otras 
-            sorprendentes. La adopción es real, la calidad importa más que la cantidad, 
-            y —contra nuestra intuición— los resultados concretos importan más que los 
-            sentimientos abstractos.
+            Entramos buscando patrones. Salimos con certezas incómodas: 
+            que la satisfacción no garantiza lealtad, que el tiempo invertido 
+            no predice resultados, y que los estudiantes son más pragmáticos 
+            de lo que quisiéramos admitir.
           </p>
           <p>
-            Este análisis demuestra algo fundamental sobre el data storytelling: debemos 
-            dejar que los datos cuenten su propia historia, incluso cuando desafía nuestras 
-            expectativas. Los estudiantes nos están diciendo que la IA educativa debe 
-            enfocarse en <strong>resolver problemas reales de manera efectiva</strong>, 
-            no solo en crear experiencias agradables.
+            Pero también con esperanza: la IA educativa funciona. 
+            No es perfecta, no reemplaza profesores, y definitivamente 
+            no hace el trabajo por nadie. Pero cuando se usa bien, 
+            <strong>amplifica el aprendizaje</strong>. Y eso es lo que importa.
           </p>
           <p className="firma">
             <strong>EduIA</strong>
             <br />
-            <strong>Donde los datos revelan verdades incómodas</strong>
+            <strong>10,000 sesiones. 3 lecciones. 1 verdad.</strong>
             <span className="fecha-firma">2026</span>
           </p>
         </div>

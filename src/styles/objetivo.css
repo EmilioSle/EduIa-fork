@@ -67,10 +67,23 @@
   border: 1px solid rgba(0, 217, 255, 0.2);
   backdrop-filter: blur(10px);
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   transform-style: preserve-3d;
   perspective: 1000px;
+}
+
+.grafico-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.grafico-header .titulo-grafico {
+  margin-bottom: 0;
 }
 
 .grafico-contenedor::before {
@@ -421,4 +434,74 @@
 
 .grafico-entrada.delay-3 {
   animation-delay: 0.3s;
+}
+
+/* ===== ESTILOS PARA SECCIÓN AVANZADA ===== */
+.seccion-avanzado {
+  background: linear-gradient(180deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+}
+
+.seccion-avanzado::before {
+  background: linear-gradient(90deg, transparent 0%, #9d4edd 30%, #00d9ff 70%, transparent 100%);
+  height: 3px;
+}
+
+.titulo-avanzado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.titulo-avanzado .icono-titulo {
+  color: #ffd93d;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.7; transform: scale(1.1) rotate(10deg); }
+}
+
+.grafico-avanzado {
+  background: linear-gradient(135deg, rgba(13, 17, 23, 0.9) 0%, rgba(22, 27, 34, 0.95) 100%);
+  border: 1px solid rgba(157, 78, 221, 0.3);
+}
+
+.grafico-avanzado:hover {
+  border-color: rgba(157, 78, 221, 0.6);
+  box-shadow: 
+    0 20px 60px rgba(157, 78, 221, 0.25),
+    0 0 100px rgba(0, 217, 255, 0.15),
+    inset 0 0 60px rgba(157, 78, 221, 0.05);
+}
+
+.grafico-avanzado .titulo-grafico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+}
+
+.grafico-avanzado .titulo-grafico .icono-grafico {
+  color: var(--color-primario);
+}
+
+.subtitulo-grafico {
+  font-size: 0.95rem;
+  color: #888;
+  text-align: center;
+  max-width: 650px;
+  margin: -1rem auto 2rem;
+  line-height: 1.6;
+}
+
+.conclusion-avanzado {
+  background: linear-gradient(135deg, rgba(157, 78, 221, 0.15) 0%, rgba(0, 217, 255, 0.1) 100%);
+  border-left-color: #9d4edd;
+}
+
+.conclusion-avanzado .icono-conclusion-seccion {
+  color: #ffd93d;
 }

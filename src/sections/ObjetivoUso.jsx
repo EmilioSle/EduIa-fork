@@ -6,6 +6,7 @@ import imagen2 from "../assets/images/imagen2.png";
 import imagen3 from "../assets/images/imagen3.png";
 import { OBJETIVOS_ANALITICOS } from "../utils/objetivos";
 import { BarChartNivelEducativo, DonutChartTipoTarea } from "../components/charts";
+import FiltrosGrafico from "../components/FiltrosGrafico";
 import "../styles/objetivo.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -16,6 +17,8 @@ const ObjetivoUso = ({ datos }) => {
   const graficoDonutRef = useRef(null);
   const [barrasVisible, setBarrasVisible] = useState(false);
   const [donutVisible, setDonutVisible] = useState(false);
+  const [datosBarras, setDatosBarras] = useState(null);
+  const [datosDonut, setDatosDonut] = useState(null);
 
   const objetivo = OBJETIVOS_ANALITICOS[0];
 
@@ -87,54 +90,80 @@ const ObjetivoUso = ({ datos }) => {
         <div className="encabezado-objetivo">
           <h2 className="titulo-objetivo">{objetivo.titulo}</h2>
           <p className="descripcion-objetivo">
-            Los datos revelan un patrón claro: la IA ya no es una herramienta 
-            experimental. Se ha convertido en parte integral del día a día académico. 
-            Pero no todos los estudiantes la usan de la misma manera...
+            Antes de hablar de resultados, necesitamos entender quién está 
+            detrás de cada sesión. ¿Son solo los estudiantes de tecnología? 
+            ¿Los que están bajo presión de fecha límite? Los números pintan 
+            un retrato mucho más diverso de lo que podrías imaginar...
           </p>
         </div>
 
         <div className="grafico-contenedor">
-          <h3 className="titulo-grafico">El Perfil del Usuario: Quién Usa la IA</h3>
+          <div className="grafico-header">
+            <h3 className="titulo-grafico">El Perfil del Usuario: Quién Usa la IA</h3>
+            {datos && (
+              <FiltrosGrafico 
+                datos={datos} 
+                onFiltrar={setDatosBarras}
+                mostrarNivel={false}
+                mostrarDisciplina={true}
+                mostrarResultado={true}
+              />
+            )}
+          </div>
           <div ref={graficoBarrasRef} className="grafico-wrapper">
             {barrasVisible && datos && (
               <div className="grafico-entrada">
-                <BarChartNivelEducativo datos={datos} />
+                <BarChartNivelEducativo datos={datosBarras || datos} />
               </div>
             )}
           </div>
           <img src={imagen2} alt="Perfil de usuario" className="imagen-grafico imagen-grafico-grande" />
           <p className="explicacion-grafico">
-            📊 <strong>La historia comienza aquí:</strong> Los estudiantes de pregrado 
-            dominan el uso de IA, representando la gran mayoría de las sesiones. 
-            Están en un punto crítico de su formación, donde la presión académica 
-            se encuentra con la curiosidad tecnológica.
+            📊 <strong>El primer hallazgo:</strong> Los estudiantes de pregrado 
+            lideran la adopción con diferencia abrumadora. No es coincidencia: están 
+            en el ojo del huracán académico — múltiples materias, trabajos semanales, 
+            y la eterna pregunta: <em>"¿Esto está bien?"</em> La IA se convirtió en 
+            ese compañero de estudio disponible a cualquier hora.
           </p>
         </div>
 
         <div className="grafico-contenedor">
-          <h3 className="titulo-grafico">El Propósito: Para Qué Recurren a la IA</h3>
+          <div className="grafico-header">
+            <h3 className="titulo-grafico">El Propósito: Para Qué Recurren a la IA</h3>
+            {datos && (
+              <FiltrosGrafico 
+                datos={datos} 
+                onFiltrar={setDatosDonut}
+                mostrarNivel={true}
+                mostrarDisciplina={true}
+                mostrarResultado={false}
+              />
+            )}
+          </div>
           <div ref={graficoDonutRef} className="grafico-wrapper">
             {donutVisible && datos && (
               <div className="grafico-entrada">
-                <DonutChartTipoTarea datos={datos} />
+                <DonutChartTipoTarea datos={datosDonut || datos} />
               </div>
             )}
           </div>
           <img src={imagen3} alt="Propósito de uso" className="imagen-grafico" />
           <p className="explicacion-grafico">
-            <Lightbulb className="icono-inline" size={20} strokeWidth={1.5} /> <strong>Una revelación interesante:</strong> Aunque muchos piensan 
-            que la IA solo se usa para escribir ensayos, los datos muestran una 
-            diversidad sorprendente. Desde estudiar conceptos difíciles hasta 
-            depurar código, la IA se ha convertido en un asistente multifacético.
+            <Lightbulb className="icono-inline" size={20} strokeWidth={1.5} /> <strong>¿Copiar y pegar?</strong> El mito se derrumba. 
+            Estudiar y entender conceptos supera a "escribe mi ensayo". 
+            La programación aparece fuerte — no para que la IA escriba código, 
+            sino para <em>entender por qué no funciona</em>. Los estudiantes 
+            buscan aprender, no solo sobrevivir.
           </p>
         </div>
 
         <div className="conclusion-seccion">
           <Brain className="icono-conclusion-seccion" size={40} strokeWidth={1.5} />
           <p className="texto-conclusion">
-            <strong>Insight Clave:</strong> La IA no está reemplazando el aprendizaje, 
-            está democratizándolo. Estudiantes de todos los niveles la usan como un 
-            tutor personal disponible 24/7, adaptándose a sus necesidades específicas.
+            <strong>🔑 Primera lección:</strong> La adopción no es uniforme ni aleatoria. 
+            Sigue el rastro de la necesidad: donde hay presión académica, hay IA. 
+            Pero la sorpresa está en el <em>para qué</em> — la herramienta que muchos 
+            temían que fomentara el plagio, se usa principalmente para <strong>aprender</strong>.
           </p>
         </div>
       </div>

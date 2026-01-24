@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense, useMemo, useCallback } from "react";
 import Lenis from "@studio-freight/lenis";
 import { Users, Clock, Star, RotateCw } from "lucide-react";
 import { cargarDatos } from "./services/servicioDatos";
@@ -8,15 +8,37 @@ import EstadisticaDestacada from "./components/EstadisticaDestacada";
 import "./styles/global.css";
 
 // Lazy loading de secciones pesadas
-const ObjetivoUso = lazy(() => import("./sections/ObjetivoUso"));
-const ObjetivoSatisfaccion = lazy(() => import("./sections/ObjetivoSatisfaccion"));
-const ObjetivoReutilizacion = lazy(() => import("./sections/ObjetivoReutilizacion"));
-const Conclusiones = lazy(() => import("./sections/Conclusiones"));
+const ObjetivoUso = lazy(() => import(/* webpackChunkName: "objetivo-uso" */ "./sections/ObjetivoUso"));
+const ObjetivoSatisfaccion = lazy(() => import(/* webpackChunkName: "objetivo-satisfaccion" */ "./sections/ObjetivoSatisfaccion"));
+const ObjetivoReutilizacion = lazy(() => import(/* webpackChunkName: "objetivo-reutilizacion" */ "./sections/ObjetivoReutilizacion"));
+const Conclusiones = lazy(() => import(/* webpackChunkName: "conclusiones" */ "./sections/Conclusiones"));
 
 const App = () => {
   const [datos, setDatos] = useState(null);
   const [cargando, setCargando] = useState(true);
-  const [estadisticasGenerales, setEstadisticasGenerales] = useState(null);
+
+  // Memoizar cálculo de estadísticas para evitar recálculos innecesarios
+  const estadisticasGenerales = useMemo(() => {
+    if (!datos) return null;
+    
+    const totalSesiones = datos.length;
+    const satisfaccionPromedio = (
+      datos.reduce((sum, d) => sum + (d.satisfaccion || 0), 0) / totalSesiones
+    ).toFixed(1);
+    const duracionPromedio = (
+      datos.reduce((sum, d) => sum + (d.duracionMinutos || 0), 0) / totalSesiones
+    ).toFixed(0);
+    const porcentajeReutilizacion = (
+      (datos.filter((d) => d.usoPosterior === "Sí").length / totalSesiones) * 100
+    ).toFixed(0);
+
+    return {
+      totalSesiones,
+      satisfaccionPromedio,
+      duracionPromedio,
+      porcentajeReutilizacion,
+    };
+  }, [datos]);
 
   useEffect(() => {
     // Configurar scroll suave con Lenis (optimizado)
@@ -36,16 +58,11 @@ const App = () => {
 
     requestAnimationFrame(raf);
 
-    // Cargar datos
+    // Cargar datos (ahora con cache)
     const inicializar = async () => {
       try {
         const datosCSV = await cargarDatos();
         setDatos(datosCSV);
-        
-        // Calcular estadísticas generales
-        const stats = calcularEstadisticasGenerales(datosCSV);
-        setEstadisticasGenerales(stats);
-        
         setCargando(false);
       } catch (error) {
         console.error("Error al cargar datos:", error);
@@ -59,26 +76,6 @@ const App = () => {
       lenis.destroy();
     };
   }, []);
-
-  const calcularEstadisticasGenerales = (datos) => {
-    const totalSesiones = datos.length;
-    const satisfaccionPromedio = (
-      datos.reduce((sum, d) => sum + (d.satisfaccion || 0), 0) / totalSesiones
-    ).toFixed(1);
-    const duracionPromedio = (
-      datos.reduce((sum, d) => sum + (d.duracionMinutos || 0), 0) / totalSesiones
-    ).toFixed(0);
-    const porcentajeReutilizacion = (
-      (datos.filter((d) => d.usoPosterior === "Sí").length / totalSesiones) * 100
-    ).toFixed(0);
-
-    return {
-      totalSesiones,
-      satisfaccionPromedio,
-      duracionPromedio,
-      porcentajeReutilizacion,
-    };
-  };
 
   if (cargando) {
     return (

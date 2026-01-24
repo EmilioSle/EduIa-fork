@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Database, BookOpen, Users, BarChart2 } from "lucide-react";
 import imagen1 from "../assets/images/imagen1.png";
 import "../styles/intro.css";
 
@@ -170,29 +171,68 @@ const Intro = () => {
           EduIA
         </h1>
         <h2 ref={subtituloRef} className="subtitulo">
-          La Revolución Silenciosa de la Inteligencia Artificial en las Aulas
+          Uso de Asistentes de IA en la Vida Estudiantil
         </h2>
         <div ref={textoRef} className="texto-intro">
           <p className="parrafo-destacado">
-            Imagina un estudiante a las 2 AM, luchando con un proyecto...
+            Explora cómo los estudiantes de diversos niveles académicos utilizan 
+            herramientas de inteligencia artificial para aprender, programar, 
+            escribir e investigar.
+          </p>
+          
+          {/* Tarjeta de información del dataset */}
+          <div className="dataset-info">
+            <div className="dataset-header">
+              <Database size={24} />
+              <h3>Sobre el Conjunto de Datos</h3>
+            </div>
+            <p className="dataset-descripcion">
+              Este conjunto de datos contiene <strong>10,000 sesiones</strong> de estudiantes 
+              interactuando con asistentes de IA (como ChatGPT) para diversas tareas académicas. 
+              Cada registro captura el nivel del estudiante, disciplina, tipo de tarea, 
+              duración, efectividad percibida y satisfacción.
+            </p>
+            <div className="dataset-variables">
+              <div className="variable-grupo">
+                <Users size={18} />
+                <div>
+                  <strong>Perfil del Estudiante</strong>
+                  <span>Nivel académico (Secundaria, Pregrado, Graduado) y disciplina</span>
+                </div>
+              </div>
+              <div className="variable-grupo">
+                <BookOpen size={18} />
+                <div>
+                  <strong>Sesión de IA</strong>
+                  <span>Duración, prompts utilizados y tipo de tarea</span>
+                </div>
+              </div>
+              <div className="variable-grupo">
+                <BarChart2 size={18} />
+                <div>
+                  <strong>Resultados</strong>
+                  <span>Nivel de asistencia (1-5), satisfacción y reutilización</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p className="parrafo-narrativa">
+            Son las 2 de la madrugada. Un estudiante de ingeniería mira la pantalla, 
+            el cursor parpadeando sobre un código que no funciona. Pero algo ha cambiado.
           </p>
           <p>
-            Ya no está solo. Junto a él, una inteligencia artificial le ayuda a 
-            estructurar ideas, depurar código y pulir su escritura. Esta es la 
-            nueva realidad de millones de estudiantes en 2025.
-          </p>
-          <p>
-            Pero, ¿qué significa realmente este cambio? ¿Están los estudiantes 
-            encontrando valor real, o es solo una moda pasajera? A través de datos 
-            reales de cientos de sesiones, desentrañaremos esta historia.
+            En lugar de rendirse o buscar entre foros obsoletos, abre una conversación 
+            con una IA. En minutos, no solo encuentra el error — <em>entiende por qué ocurrió</em>. 
+            Esta escena se repite miles de veces cada noche, en dormitorios y bibliotecas 
+            de todo el mundo.
           </p>
           <p className="cita-intro">
-            "La pregunta no es si la IA está en las aulas, sino cómo está 
-            transformando la forma en que aprendemos"
+            "Los datos no mienten. Pero a veces cuentan historias que no esperábamos escuchar."
           </p>
           <div className="indicador-scroll">
             <span>↓</span>
-            <p>Desliza para descubrir la historia</p>
+            <p>Sumérgete en los datos</p>
           </div>
           <img src={imagen1} alt="Introducción a EduIA" className="imagen-intro" />
         </div>
