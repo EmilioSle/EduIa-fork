@@ -188,14 +188,52 @@ const DonutChartTipoTarea = ({ datos, onReady }) => {
                 👆 Click para fijar y ver más detalles
               </div>
             </div>
-          `)
-          .style("left", (event.offsetX + 20) + "px")
-          .style("top", (event.offsetY - 20) + "px");
+          `);
+        
+        // Ajustar posición para no salirse del contenedor
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const tooltipWidth = 260;
+        const tooltipHeight = 280;
+        let leftPos = event.offsetX + 20;
+        let topPos = event.offsetY - 20;
+        
+        // Detectar borde derecho
+        if (event.offsetX + tooltipWidth > containerRect.width - 20) {
+          leftPos = event.offsetX - tooltipWidth - 20;
+        }
+        // Detectar borde inferior
+        if (event.offsetY + tooltipHeight > containerRect.height - 20) {
+          topPos = event.offsetY - tooltipHeight;
+        }
+        // Detectar borde superior
+        if (topPos < 10) {
+          topPos = 10;
+        }
+        
+        tooltip.style("left", leftPos + "px").style("top", topPos + "px");
       })
       .on("mousemove", function(event) {
-        tooltip
-          .style("left", (event.offsetX + 20) + "px")
-          .style("top", (event.offsetY - 20) + "px");
+        // Ajustar posición para no salirse del contenedor
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const tooltipWidth = 260;
+        const tooltipHeight = 280;
+        let leftPos = event.offsetX + 20;
+        let topPos = event.offsetY - 20;
+        
+        // Detectar borde derecho
+        if (event.offsetX + tooltipWidth > containerRect.width - 20) {
+          leftPos = event.offsetX - tooltipWidth - 20;
+        }
+        // Detectar borde inferior
+        if (event.offsetY + tooltipHeight > containerRect.height - 20) {
+          topPos = event.offsetY - tooltipHeight;
+        }
+        // Detectar borde superior
+        if (topPos < 10) {
+          topPos = 10;
+        }
+        
+        tooltip.style("left", leftPos + "px").style("top", topPos + "px");
       })
       .on("mouseleave", function(event, d) {
         d3.select(this)

@@ -223,20 +223,46 @@ const BarChartNivelEducativo = ({ datos, onReady }) => {
         // Ajustar posición para no salirse del contenedor
         const containerRect = containerRef.current.getBoundingClientRect();
         const tooltipWidth = 250;
+        const tooltipHeight = 200;
         let leftPos = event.offsetX + 15;
+        let topPos = event.offsetY - 10;
+        
+        // Detectar borde derecho
         if (event.offsetX + tooltipWidth > containerRect.width - 20) {
           leftPos = event.offsetX - tooltipWidth - 15;
         }
-        tooltip.style("left", leftPos + "px").style("top", (event.offsetY - 10) + "px");
+        // Detectar borde inferior
+        if (event.offsetY + tooltipHeight > containerRect.height - 20) {
+          topPos = event.offsetY - tooltipHeight;
+        }
+        // Detectar borde superior
+        if (topPos < 10) {
+          topPos = 10;
+        }
+        
+        tooltip.style("left", leftPos + "px").style("top", topPos + "px");
       })
       .on("mousemove", function(event) {
         const containerRect = containerRef.current.getBoundingClientRect();
         const tooltipWidth = 250;
+        const tooltipHeight = 200;
         let leftPos = event.offsetX + 15;
+        let topPos = event.offsetY - 10;
+        
+        // Detectar borde derecho
         if (event.offsetX + tooltipWidth > containerRect.width - 20) {
           leftPos = event.offsetX - tooltipWidth - 15;
         }
-        tooltip.style("left", leftPos + "px").style("top", (event.offsetY - 10) + "px");
+        // Detectar borde inferior
+        if (event.offsetY + tooltipHeight > containerRect.height - 20) {
+          topPos = event.offsetY - tooltipHeight;
+        }
+        // Detectar borde superior
+        if (topPos < 10) {
+          topPos = 10;
+        }
+        
+        tooltip.style("left", leftPos + "px").style("top", topPos + "px");
       })
       .on("mouseleave", function(event, d) {
         const barra = d3.select(this).select(".barra");
