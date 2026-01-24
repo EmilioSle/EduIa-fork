@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo, useMemo } from "react";
 import * as d3 from "d3";
 
 /**
  * Gráfico de barras interactivo con zoom, click para detalles y comparativas
+ * Optimizado con memo para evitar re-renders innecesarios
  */
-const BarChartNivelEducativo = ({ datos, onReady }) => {
+const BarChartNivelEducativo = memo(({ datos, onReady }) => {
   const containerRef = useRef(null);
   const [seleccionado, setSeleccionado] = useState(null);
   const [detalles, setDetalles] = useState(null);
@@ -410,6 +411,6 @@ const BarChartNivelEducativo = ({ datos, onReady }) => {
   };
 
   return <div ref={containerRef} className="grafico"></div>;
-};
+});
 
 export default BarChartNivelEducativo;

@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import * as d3 from "d3";
 import { sankey, sankeyLinkHorizontal } from "d3-sankey";
 
 /**
  * Gráfico Sankey que muestra el flujo de uso de IA:
  * Nivel Educativo → Tipo de Tarea → Resultado Final
+ * Optimizado con memo para evitar re-renders innecesarios
  */
-const SankeyChartFlujo = ({ datos, filtroNivel = null }) => {
+const SankeyChartFlujo = memo(({ datos, filtroNivel = null }) => {
   const containerRef = useRef(null);
   const tooltipRef = useRef(null);
   const [dimensiones, setDimensiones] = useState({ width: 800, height: 500 });
@@ -337,6 +338,6 @@ const SankeyChartFlujo = ({ datos, filtroNivel = null }) => {
       }}
     />
   );
-};
+});
 
 export default SankeyChartFlujo;

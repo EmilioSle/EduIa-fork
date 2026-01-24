@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo, useMemo } from "react";
 import * as d3 from "d3";
 
 /**
  * Line chart interactivo con comparativa por nivel educativo
+ * Optimizado con memo para evitar re-renders innecesarios
  */
-const LineChartAsistencia = ({ datos, onReady }) => {
+const LineChartAsistencia = memo(({ datos, onReady }) => {
   const containerRef = useRef(null);
   const [modoComparacion, setModoComparacion] = useState(false);
   const [nivelSeleccionado, setNivelSeleccionado] = useState(null);
@@ -461,6 +462,6 @@ const LineChartAsistencia = ({ datos, onReady }) => {
   };
 
   return <div ref={containerRef} className="grafico"></div>;
-};
+});
 
 export default LineChartAsistencia;

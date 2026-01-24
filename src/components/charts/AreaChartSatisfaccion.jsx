@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import * as d3 from "d3";
 
 /**
  * Area Chart interactivo con comparativa por tipo de tarea
+ * Optimizado con memo para evitar re-renders innecesarios
  */
-const AreaChartSatisfaccion = ({ datos, onReady }) => {
+const AreaChartSatisfaccion = memo(({ datos, onReady }) => {
   const containerRef = useRef(null);
   const [modoDetalle, setModoDetalle] = useState(false);
   const [rangoSeleccionado, setRangoSeleccionado] = useState(null);
@@ -454,6 +455,6 @@ const AreaChartSatisfaccion = ({ datos, onReady }) => {
   };
 
   return <div ref={containerRef} className="grafico"></div>;
-};
+});
 
 export default AreaChartSatisfaccion;

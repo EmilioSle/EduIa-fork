@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import * as d3 from "d3";
 
 /**
  * Gráfico Sunburst que muestra la jerarquía:
  * Centro: Total → Nivel Educativo → Tipo de Tarea → Resultado Final
  * Permite hacer zoom al hacer clic en cada segmento
+ * Optimizado con memo para evitar re-renders innecesarios
  */
-const SunburstChartFlujo = ({ datos, filtroNivel = null }) => {
+const SunburstChartFlujo = memo(({ datos, filtroNivel = null }) => {
   const containerRef = useRef(null);
   const [dimensiones, setDimensiones] = useState({ width: 600, height: 600 });
 
@@ -416,6 +417,6 @@ const SunburstChartFlujo = ({ datos, filtroNivel = null }) => {
       }}
     />
   );
-};
+});
 
 export default SunburstChartFlujo;

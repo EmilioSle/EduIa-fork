@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo, useMemo } from "react";
 import * as d3 from "d3";
 
 /**
  * Gráfico donut interactivo con click para detalles y comparativas
+ * Optimizado con memo para evitar re-renders innecesarios
  */
-const DonutChartTipoTarea = ({ datos, onReady }) => {
+const DonutChartTipoTarea = memo(({ datos, onReady }) => {
   const containerRef = useRef(null);
   const [seleccionado, setSeleccionado] = useState(null);
 
@@ -480,6 +481,6 @@ const DonutChartTipoTarea = ({ datos, onReady }) => {
   };
 
   return <div ref={containerRef} className="grafico"></div>;
-};
+});
 
 export default DonutChartTipoTarea;

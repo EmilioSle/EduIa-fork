@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import * as d3 from "d3";
 
 /**
  * Lollipop Chart interactivo con selección y comparativas
+ * Optimizado con memo para evitar re-renders innecesarios
  */
-const LollipopChartResultado = ({ datos, onReady }) => {
+const LollipopChartResultado = memo(({ datos, onReady }) => {
   const containerRef = useRef(null);
   const [ordenActivo, setOrdenActivo] = useState("porcentaje");
   const [resultadoSeleccionado, setResultadoSeleccionado] = useState(null);
@@ -474,6 +475,6 @@ const LollipopChartResultado = ({ datos, onReady }) => {
   };
 
   return <div ref={containerRef} className="grafico"></div>;
-};
+});
 
 export default LollipopChartResultado;
