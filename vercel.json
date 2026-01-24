@@ -2,6 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "regions": ["iad1"],
   "headers": [
     {
       "source": "/assets/(.*)",
@@ -65,12 +66,36 @@
           "value": "public, max-age=0, must-revalidate"
         }
       ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
     }
   ],
   "routes": [
     {
       "src": "/datos_limpios.csv",
-      "dest": "/datos_limpios.csv"
+      "dest": "/datos_limpios.csv",
+      "headers": {
+        "Content-Type": "text/csv; charset=utf-8"
+      }
     },
     {
       "handle": "filesystem"
@@ -79,5 +104,7 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "trailingSlash": false,
+  "cleanUrls": true
 }
