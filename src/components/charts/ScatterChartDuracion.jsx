@@ -427,23 +427,29 @@ const ScatterChartDuracion = memo(({ datos, onReady }) => {
 
     // Leyenda
     if (filtroNivel === "todos") {
+      const legendWidth = isMobile ? width : 280;
+      const legendX = isMobile ? 0 : width - 100;
+      const legendY = isMobile ? -45 : -30;
+      
       const legend = g.append("g")
-        .attr("transform", `translate(${width - 100}, -30)`);
+        .attr("transform", `translate(${legendX}, ${legendY})`);
+
+      const itemSpacing = isMobile ? Math.min(90, width / nivelesUnicos.length) : 95;
 
       nivelesUnicos.forEach((nivel, i) => {
         const item = legend.append("g")
-          .attr("transform", `translate(${i * 90}, 0)`);
+          .attr("transform", `translate(${i * itemSpacing}, 0)`);
 
         item.append("circle")
-          .attr("r", 5)
+          .attr("r", isMobile ? 4 : 5)
           .attr("fill", colorByLevel(nivel));
 
         item.append("text")
-          .attr("x", 10)
+          .attr("x", isMobile ? 8 : 10)
           .attr("y", 4)
-          .style("font-size", "11px")
+          .style("font-size", isMobile ? "10px" : "11px")
           .style("fill", "#fff")
-          .text(nivel);
+          .text(isMobile ? nivel.substring(0, 7) : nivel);
       });
     }
 
