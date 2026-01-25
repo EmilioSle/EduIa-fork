@@ -12,6 +12,7 @@ const ObjetivoUso = lazy(() => import(/* webpackChunkName: "objetivo-uso" */ "./
 const ObjetivoSatisfaccion = lazy(() => import(/* webpackChunkName: "objetivo-satisfaccion" */ "./sections/ObjetivoSatisfaccion"));
 const ObjetivoReutilizacion = lazy(() => import(/* webpackChunkName: "objetivo-reutilizacion" */ "./sections/ObjetivoReutilizacion"));
 const Conclusiones = lazy(() => import(/* webpackChunkName: "conclusiones" */ "./sections/Conclusiones"));
+const TecnologiasUsadas = lazy(() => import(/* webpackChunkName: "tecnologias" */ "./sections/tegnologiaUsadas"));
 
 const App = () => {
   const [datos, setDatos] = useState(null);
@@ -165,6 +166,10 @@ const App = () => {
 
       <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--color-fondo)' }} />}>
         <Conclusiones />
+      </Suspense>
+
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--color-fondo)' }} />}>
+        <TecnologiasUsadas />
       </Suspense>
     </div>
   );
