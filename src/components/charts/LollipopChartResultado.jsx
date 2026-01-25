@@ -67,57 +67,63 @@ const LollipopChartResultado = memo(({ datos, onReady }) => {
       datosArray.sort((a, b) => a.resultado.localeCompare(b.resultado));
     }
 
+    // Configuración responsiva (definir primero)
+    const containerWidth = containerRef.current.clientWidth || 350;
+    const isMobile = window.innerWidth < 768;
+    const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+
     // Wrapper
     const wrapper = d3.select(containerRef.current)
       .append("div")
-      .style("position", "relative");
+      .style("position", "relative")
+      .style("overflow", "visible");
 
     // Controles
     const controles = wrapper.append("div")
       .style("display", "flex")
-      .style("gap", "12px")
+      .style("gap", isMobile ? "8px" : "12px")
       .style("margin-bottom", "15px")
       .style("flex-wrap", "wrap")
-      .style("align-items", "center");
+      .style("align-items", "center")
+      .style("justify-content", isMobile ? "center" : "flex-start");
 
     controles.append("span")
       .style("color", "#888")
-      .style("font-size", "13px")
+      .style("font-size", isMobile ? "11px" : "13px")
+      .style("width", isMobile ? "100%" : "auto")
+      .style("text-align", isMobile ? "center" : "left")
+      .style("margin-bottom", isMobile ? "5px" : "0")
       .text("Ordenar por:");
 
     const opciones = [
-      { id: "porcentaje", label: "📊 % Reutilización", color: "#00ff9f" },
-      { id: "total", label: "👥 Cantidad", color: "#00d9ff" },
+      { id: "porcentaje", label: isMobile ? "📊 %" : "📊 % Reutilización", color: "#00ff9f" },
+      { id: "total", label: isMobile ? "👥 Cant." : "👥 Cantidad", color: "#00d9ff" },
       { id: "alfabetico", label: "🔤 Alfabético", color: "#9d4edd" }
     ];
 
     opciones.forEach(opcion => {
       controles.append("button")
         .text(opcion.label)
-        .style("padding", "8px 14px")
+        .style("padding", isMobile ? "6px 10px" : "8px 14px")
         .style("border-radius", "10px")
         .style("border", `1px solid ${ordenActivo === opcion.id ? opcion.color : "rgba(255,255,255,0.15)"}`)
         .style("background", ordenActivo === opcion.id ? `${opcion.color}22` : "transparent")
         .style("color", ordenActivo === opcion.id ? opcion.color : "#888")
-        .style("font-size", "12px")
+        .style("font-size", isMobile ? "11px" : "12px")
         .style("font-weight", "500")
         .style("cursor", "pointer")
         .on("click", () => setOrdenActivo(opcion.id));
     });
 
-    // Configuración responsiva
-    const containerWidth = containerRef.current.clientWidth;
-    const isMobile = window.innerWidth < 768;
-    const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
-    
+    // Márgenes del gráfico
     const margin = isMobile 
-      ? { top: 30, right: 50, bottom: 60, left: 180 }
+      ? { top: 30, right: 60, bottom: 50, left: 120 }
+      : isTablet
+      ? { top: 35, right: 70, bottom: 55, left: 180 }
       : { top: 40, right: 80, bottom: 60, left: 260 };
     
-    const width = isMobile || isTablet 
-      ? Math.max(300, containerWidth - 40) - margin.left - margin.right
-      : 850 - margin.left - margin.right;
-    const height = isMobile ? 300 : 400;
+    const width = Math.max(200, containerWidth - margin.left - margin.right - 20);
+    const height = isMobile ? 280 : isTablet ? 340 : 400;
 
     const svgContainer = wrapper.append("div").style("position", "relative");
 
@@ -160,12 +166,12 @@ const LollipopChartResultado = memo(({ datos, onReady }) => {
     // Eje Y
     const yAxis = svg.append("g").call(d3.axisLeft(y).tickSizeOuter(0));
     yAxis.selectAll("text")
-      .style("font-size", isMobile ? "11px" : "13px")
+      .style("font-size", isMobile ? "10px" : isTablet ? "11px" : "13px")
       .style("font-weight", "600")
       .style("fill", d => resultadoSeleccionado === d ? "#fff" : "#aaa")
       .style("cursor", "pointer")
       .each(function(d) {
-        const maxLength = isMobile ? 18 : 35;
+        const maxLength = isMobile ? 14 : isTablet ? 20 : 35;
         if (d.length > maxLength) {
           d3.select(this).text(d.substring(0, maxLength - 3) + "...");
         }
@@ -179,14 +185,20 @@ const LollipopChartResultado = memo(({ datos, onReady }) => {
     // Eje X
     const xAxis = svg.append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).ticks(10).tickSizeOuter(0));
+      .call(d3.axisBottom(x).ticks(isMobile ? 5 : 10).tickSizeOuter(0));
 
-    xAxis.selectAll("text").style("font-size", "13px").style("font-weight", "500").style("fill", "#fff");
+    xAxis.selectAll("text")
+      .style("font-size", isMobile ? "10px" : "13px")
+      .style("font-weight", "500")
+      .style("fill", "#fff");
     xAxis.selectAll("line, path").style("stroke", "#fff").style("stroke-width", 2);
 
     svg.append("text")
-      .attr("x", width / 2).attr("y", height + 45)
-      .style("text-anchor", "middle").style("font-size", "16px").style("font-weight", "600").style("fill", "#00d9ff")
+      .attr("x", width / 2).attr("y", height + (isMobile ? 35 : 45))
+      .style("text-anchor", "middle")
+      .style("font-size", isMobile ? "12px" : "16px")
+      .style("font-weight", "600")
+      .style("fill", "#00d9ff")
       .text("% de Reutilización");
 
     // Tooltip
@@ -207,7 +219,7 @@ const LollipopChartResultado = memo(({ datos, onReady }) => {
       .attr("y1", d => y(d.resultado) + y.bandwidth() / 2)
       .attr("y2", d => y(d.resultado) + y.bandwidth() / 2)
       .attr("stroke", (d, i) => coloresDots[i % coloresDots.length])
-      .attr("stroke-width", 3)
+      .attr("stroke-width", isMobile ? 2 : 3)
       .attr("opacity", d => resultadoSeleccionado && resultadoSeleccionado !== d.resultado ? 0.2 : 0.6)
       .transition()
       .duration(1200)
@@ -278,7 +290,7 @@ const LollipopChartResultado = memo(({ datos, onReady }) => {
         tooltip.style("left", leftPos + "px").style("top", (event.offsetY - 10) + "px");
       })
       .on("mouseleave", function() {
-        d3.select(this).transition().duration(150).attr("r", 14);
+        d3.select(this).transition().duration(150).attr("r", isMobile ? 10 : 14);
         tooltip.transition().duration(150).style("opacity", 0);
       })
       .on("click", function(event, d) {
@@ -288,7 +300,7 @@ const LollipopChartResultado = memo(({ datos, onReady }) => {
       .duration(1200)
       .delay((d, i) => i * 100)
       .attr("cx", d => x(d.porcentaje))
-      .attr("r", 14);
+      .attr("r", isMobile ? 10 : 14);
 
     // Etiquetas de valor
     svg.selectAll(".etiqueta-valor")
@@ -298,7 +310,7 @@ const LollipopChartResultado = memo(({ datos, onReady }) => {
       .attr("x", 0)
       .attr("y", d => y(d.resultado) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
-      .style("font-size", "14px")
+      .style("font-size", isMobile ? "11px" : "14px")
       .style("font-weight", "700")
       .style("fill", "#fff")
       .style("opacity", 0)
@@ -306,14 +318,14 @@ const LollipopChartResultado = memo(({ datos, onReady }) => {
       .transition()
       .duration(800)
       .delay((d, i) => i * 100 + 800)
-      .attr("x", d => x(d.porcentaje) + 22)
+      .attr("x", d => x(d.porcentaje) + (isMobile ? 15 : 22))
       .style("opacity", d => resultadoSeleccionado && resultadoSeleccionado !== d.resultado ? 0.3 : 1);
 
-    // Destacar mejor resultado
+    // Destacar mejor resultado (solo en desktop)
     const maxPorcentaje = d3.max(datosArray, d => d.porcentaje);
     const mejorResultado = datosArray.find(d => d.porcentaje === maxPorcentaje);
     
-    if (mejorResultado && !resultadoSeleccionado) {
+    if (mejorResultado && !resultadoSeleccionado && !isMobile) {
       svg.append("text")
         .attr("x", x(mejorResultado.porcentaje) + 55)
         .attr("y", y(mejorResultado.resultado) + y.bandwidth() / 2)
