@@ -46,38 +46,40 @@ const DonutChartTipoTarea = memo(({ datos, onReady }) => {
     });
 
     // Configuración responsiva
-    const containerWidth = containerRef.current.clientWidth;
+    const containerWidth = containerRef.current.clientWidth || 350;
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
     const donutSize = isMobile 
-      ? Math.min(320, containerWidth - 40) 
+      ? Math.max(200, Math.min(260, containerWidth - 40)) 
       : isTablet 
-      ? 420 
-      : 500;
+      ? 380 
+      : 450;
     
+    const radius = Math.max(80, donutSize / 2 - (isMobile ? 15 : 45));
     const legendHeight = isMobile ? 220 : isTablet ? 160 : 140;
-    const width = isMobile ? donutSize : isTablet ? 550 : 700;
-    const height = donutSize + legendHeight + (seleccionado ? 200 : 0);
-    const radius = donutSize / 2 - (isMobile ? 35 : 45);
-    const innerRadiusRatio = 0.6;
+    const width = isMobile ? Math.max(320, containerWidth) : isTablet ? 550 : 700;
+    const height = (radius * 2) + legendHeight + (seleccionado ? 200 : 0) + (isMobile ? 80 : 60);
+    const innerRadiusRatio = 0.5;
     const fontSize = isMobile ? "11px" : isTablet ? "12px" : "13px";
 
     // Contenedor principal
     const wrapper = d3.select(containerRef.current)
       .append("div")
-      .style("position", "relative");
+      .style("position", "relative")
+      .style("overflow", "visible");
 
     const svgElement = wrapper
       .append("svg")
       .attr("width", "100%")
       .attr("height", height)
       .attr("viewBox", `0 0 ${width} ${height}`)
-      .attr("preserveAspectRatio", "xMidYMid meet");
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .style("overflow", "visible");
 
     const svg = svgElement
       .append("g")
-      .attr("transform", `translate(${width / 2},${donutSize / 2})`);
+      .attr("transform", `translate(${width / 2},${radius + (isMobile ? 30 : 20)})`);
 
     // Escala de colores
     const colores = ["#00d9ff", "#00ff9f", "#ff00ff", "#ffaa00", "#ff0066", "#7c3aed", "#10b981"];
@@ -277,13 +279,13 @@ const DonutChartTipoTarea = memo(({ datos, onReady }) => {
       .attr("transform", (d) => `translate(${arc.centroid(d)})`)
       .attr("dy", "0.35em")
       .style("text-anchor", "middle")
-      .style("font-size", isMobile ? "11px" : "14px")
+      .style("font-size", isMobile ? "9px" : "14px")
       .style("font-weight", "700")
       .style("fill", "#fff")
       .style("text-shadow", "0 0 8px rgba(0,0,0,0.9)")
       .style("pointer-events", "none")
       .style("opacity", 0)
-      .text((d) => d.data.porcentaje > 5 ? `${d.data.porcentaje}%` : "")
+      .text((d) => d.data.porcentaje > (isMobile ? 8 : 5) ? `${d.data.porcentaje}%` : "")
       .transition()
       .duration(800)
       .delay(1600)
@@ -297,15 +299,15 @@ const DonutChartTipoTarea = memo(({ datos, onReady }) => {
       centerGroup.append("text")
         .attr("text-anchor", "middle")
         .attr("dy", "-1em")
-        .style("font-size", "12px")
+        .style("font-size", isMobile ? "10px" : "12px")
         .style("font-weight", "600")
         .style("fill", color(seleccionado))
-        .text(seleccionado.length > 12 ? seleccionado.substring(0, 12) + "..." : seleccionado);
+        .text(seleccionado.length > (isMobile ? 8 : 12) ? seleccionado.substring(0, isMobile ? 8 : 12) + "..." : seleccionado);
       
       centerGroup.append("text")
         .attr("text-anchor", "middle")
         .attr("dy", "0.5em")
-        .style("font-size", isMobile ? "24px" : "32px")
+        .style("font-size", isMobile ? "20px" : "32px")
         .style("font-weight", "900")
         .style("fill", "#fff")
         .text(dataSel.cantidad.toLocaleString());
@@ -313,14 +315,14 @@ const DonutChartTipoTarea = memo(({ datos, onReady }) => {
       centerGroup.append("text")
         .attr("text-anchor", "middle")
         .attr("dy", "2.2em")
-        .style("font-size", "11px")
+        .style("font-size", isMobile ? "9px" : "11px")
         .style("fill", "#888")
         .text("sesiones");
     } else {
       centerGroup.append("text")
         .attr("text-anchor", "middle")
         .attr("dy", "-0.3em")
-        .style("font-size", isMobile ? "28px" : "36px")
+        .style("font-size", isMobile ? "22px" : "36px")
         .style("font-weight", "900")
         .style("fill", "#00d9ff")
         .text(total.toLocaleString());
@@ -328,7 +330,7 @@ const DonutChartTipoTarea = memo(({ datos, onReady }) => {
       centerGroup.append("text")
         .attr("text-anchor", "middle")
         .attr("dy", "1.5em")
-        .style("font-size", isMobile ? "11px" : "13px")
+        .style("font-size", isMobile ? "9px" : "13px")
         .style("font-weight", "600")
         .style("fill", "#888")
         .text("Sesiones Totales");
@@ -341,18 +343,19 @@ const DonutChartTipoTarea = memo(({ datos, onReady }) => {
       .style("opacity", 1);
 
     // Leyenda interactiva
+    const legendY = (radius * 2) + (isMobile ? 60 : 50);
     const legendGroup = svgElement.append("g")
-      .attr("transform", `translate(0, ${donutSize + 30})`);
+      .attr("transform", `translate(0, ${legendY})`);
 
     const itemsPerRow = isMobile ? 1 : isTablet ? 2 : 3;
     const itemWidth = width / itemsPerRow;
-    const rowHeight = 36;
+    const rowHeight = isMobile ? 30 : 36;
 
     datosArray.forEach((d, i) => {
       const row = Math.floor(i / itemsPerRow);
       const col = i % itemsPerRow;
       
-      const xPosition = isMobile ? 20 : col * itemWidth + 20;
+      const xPosition = isMobile ? 15 : col * itemWidth + 20;
       
       const legendItem = legendGroup.append("g")
         .attr("transform", `translate(${xPosition}, ${row * rowHeight})`)
@@ -375,23 +378,23 @@ const DonutChartTipoTarea = memo(({ datos, onReady }) => {
         });
 
       legendItem.append("rect")
-        .attr("width", 18)
-        .attr("height", 18)
+        .attr("width", isMobile ? 14 : 18)
+        .attr("height", isMobile ? 14 : 18)
         .attr("rx", 4)
         .attr("fill", color(d.tarea))
         .attr("opacity", seleccionado === d.tarea ? 1 : 0.8)
         .style("filter", seleccionado === d.tarea ? `drop-shadow(0 0 8px ${color(d.tarea)})` : "none");
 
       legendItem.append("text")
-        .attr("x", 26)
-        .attr("y", 9)
+        .attr("x", isMobile ? 20 : 26)
+        .attr("y", isMobile ? 7 : 9)
         .attr("dy", "0.35em")
-        .style("font-size", fontSize)
+        .style("font-size", isMobile ? "10px" : fontSize)
         .style("fill", seleccionado === d.tarea ? "#fff" : "#ccc")
         .style("font-weight", seleccionado === d.tarea ? "600" : "500")
         .text(() => {
           const texto = `${d.tarea} (${d.porcentaje}%)`;
-          const maxLength = isMobile ? 25 : isTablet ? 30 : 35;
+          const maxLength = isMobile ? 30 : isTablet ? 30 : 35;
           return texto.length > maxLength ? texto.substring(0, maxLength - 3) + "..." : texto;
         });
     });
