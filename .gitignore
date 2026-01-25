@@ -27,4 +27,4 @@ dist-ssr
 *.sw?
 
 # Archivos de audio grandes
-public/audio/musica-fondo.mp3
+
