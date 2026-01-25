@@ -343,6 +343,37 @@ const TecnologiasUsadas = () => {
             );
           })}
         </div>
+
+        <div ref={statsRef} className="estadisticas-proyecto">
+          <div className="stat-item">
+            <div className="stat-icon-wrapper">
+              <Boxes size={28} />
+            </div>
+            <span className="stat-numero">6+</span>
+            <span className="stat-texto">Categorías Tech</span>
+          </div>
+          <div className="stat-item">
+            <div className="stat-icon-wrapper">
+              <Package size={28} />
+            </div>
+            <span className="stat-numero">20+</span>
+            <span className="stat-texto">Librerías</span>
+          </div>
+          <div className="stat-item">
+            <div className="stat-icon-wrapper">
+              <Sparkles size={28} />
+            </div>
+            <span className="stat-numero">100%</span>
+            <span className="stat-texto">Responsive</span>
+          </div>
+          <div className="stat-item">
+            <div className="stat-icon-wrapper">
+              <Rocket size={28} />
+            </div>
+            <span className="stat-numero">&lt;3s</span>
+            <span className="stat-texto">Load Time</span>
+          </div>
+        </div>
       </div>
     </section>
   );
