@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, useMemo, memo } from "react";
 import * as d3 from "d3";
 
-// Número máximo de puntos a renderizar (para rendimiento)
-const MAX_PUNTOS = 500;
+// Número de puntos por defecto a renderizar
+const PUNTOS_DEFAULT = 1000;
+const PUNTOS_MIN = 100;
+const PUNTOS_MAX = 5000;
 
 /**
  * Función de sampling estratificado para mantener representatividad
@@ -34,15 +36,17 @@ const sampleData = (datos, maxPuntos) => {
 /**
  * Scatter plot interactivo con zoom, brush y selección
  * Optimizado con sampling para datasets grandes
+ * Ahora con control de cantidad de puntos
  */
 const ScatterChartDuracion = memo(({ datos, onReady }) => {
   const containerRef = useRef(null);
   const [filtroNivel, setFiltroNivel] = useState("todos");
+  const [cantidadPuntos, setCantidadPuntos] = useState(PUNTOS_DEFAULT);
 
   useEffect(() => {
     if (!datos || !containerRef.current) return;
     crearGrafico();
-  }, [datos, filtroNivel]);
+  }, [datos, filtroNivel, cantidadPuntos]);
 
   const crearGrafico = () => {
     if (!containerRef.current) return;
@@ -61,10 +65,11 @@ const ScatterChartDuracion = memo(({ datos, onReady }) => {
     // Guardar total para mostrar en stats
     const totalPuntos = datosValidos.length;
     
-    // Aplicar sampling si hay demasiados puntos
-    const usandoSampling = datosValidos.length > MAX_PUNTOS;
+    // Aplicar sampling según la cantidad de puntos seleccionada
+    const puntosAMostrar = Math.min(cantidadPuntos, totalPuntos);
+    const usandoSampling = datosValidos.length > puntosAMostrar;
     if (usandoSampling) {
-      datosValidos = sampleData(datosValidos, MAX_PUNTOS);
+      datosValidos = sampleData(datosValidos, puntosAMostrar);
     }
 
     // Obtener niveles únicos
@@ -138,6 +143,115 @@ const ScatterChartDuracion = memo(({ datos, onReady }) => {
               .style("color", "#888");
           }
         });
+    });
+
+    // Control de cantidad de puntos
+    const controlPuntos = wrapper.append("div")
+      .style("display", "flex")
+      .style("gap", "15px")
+      .style("margin-bottom", "15px")
+      .style("align-items", "center")
+      .style("background", "linear-gradient(135deg, rgba(0, 217, 255, 0.08), rgba(255, 0, 255, 0.08))")
+      .style("padding", "12px 18px")
+      .style("border-radius", "12px")
+      .style("border", "1px solid rgba(0, 217, 255, 0.2)");
+
+    controlPuntos.append("span")
+      .style("color", "#00d9ff")
+      .style("font-size", "13px")
+      .style("font-weight", "600")
+      .style("display", "flex")
+      .style("align-items", "center")
+      .style("gap", "6px")
+      .html(`<span style="font-size: 16px">📊</span> Cantidad de puntos:`);
+
+    const sliderContainer = controlPuntos.append("div")
+      .style("display", "flex")
+      .style("align-items", "center")
+      .style("gap", "12px")
+      .style("flex", "1");
+
+    sliderContainer.append("span")
+      .style("color", "#666")
+      .style("font-size", "11px")
+      .text(PUNTOS_MIN);
+
+    const slider = sliderContainer.append("input")
+      .attr("type", "range")
+      .attr("min", PUNTOS_MIN)
+      .attr("max", Math.min(PUNTOS_MAX, totalPuntos))
+      .attr("value", cantidadPuntos)
+      .attr("step", 100)
+      .style("flex", "1")
+      .style("height", "6px")
+      .style("border-radius", "3px")
+      .style("background", `linear-gradient(to right, #00d9ff 0%, #ff00ff ${(cantidadPuntos / Math.min(PUNTOS_MAX, totalPuntos)) * 100}%, rgba(255,255,255,0.1) ${(cantidadPuntos / Math.min(PUNTOS_MAX, totalPuntos)) * 100}%)`)
+      .style("appearance", "none")
+      .style("-webkit-appearance", "none")
+      .style("cursor", "pointer")
+      .on("input", function() {
+        const valor = +this.value;
+        setCantidadPuntos(valor);
+      });
+
+    sliderContainer.append("span")
+      .style("color", "#666")
+      .style("font-size", "11px")
+      .text(Math.min(PUNTOS_MAX, totalPuntos).toLocaleString());
+
+    const valorActual = controlPuntos.append("div")
+      .style("display", "flex")
+      .style("flex-direction", "column")
+      .style("align-items", "center")
+      .style("background", "rgba(0, 217, 255, 0.15)")
+      .style("padding", "8px 16px")
+      .style("border-radius", "10px")
+      .style("min-width", "80px");
+
+    valorActual.append("span")
+      .style("color", "#00d9ff")
+      .style("font-size", "20px")
+      .style("font-weight", "700")
+      .text(datosValidos.length.toLocaleString());
+
+    valorActual.append("span")
+      .style("color", "#888")
+      .style("font-size", "10px")
+      .style("text-transform", "uppercase")
+      .text("puntos");
+
+    // Botones rápidos
+    const botonesRapidos = controlPuntos.append("div")
+      .style("display", "flex")
+      .style("gap", "6px");
+
+    [500, 1000, 2000, 5000].forEach(cantidad => {
+      if (cantidad <= totalPuntos) {
+        botonesRapidos.append("button")
+          .text(cantidad >= 1000 ? `${cantidad/1000}K` : cantidad)
+          .style("padding", "6px 10px")
+          .style("border-radius", "6px")
+          .style("border", `1px solid ${cantidadPuntos === cantidad ? "#ff00ff" : "rgba(255,255,255,0.15)"}`)
+          .style("background", cantidadPuntos === cantidad ? "rgba(255, 0, 255, 0.2)" : "rgba(255,255,255,0.05)")
+          .style("color", cantidadPuntos === cantidad ? "#ff00ff" : "#888")
+          .style("font-size", "11px")
+          .style("font-weight", cantidadPuntos === cantidad ? "600" : "400")
+          .style("cursor", "pointer")
+          .style("transition", "all 0.2s")
+          .on("click", () => setCantidadPuntos(cantidad))
+          .on("mouseenter", function() {
+            d3.select(this)
+              .style("border-color", "#ff00ff")
+              .style("color", "#fff");
+          })
+          .on("mouseleave", function() {
+            if (cantidadPuntos !== cantidad) {
+              d3.select(this)
+                .style("border-color", "rgba(255,255,255,0.15)")
+                .style("color", "#888");
+            }
+          });
+      }
     });
 
     // Estadísticas en tiempo real

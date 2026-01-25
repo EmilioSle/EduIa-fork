@@ -5,6 +5,7 @@ import { cargarDatos } from "./services/servicioDatos";
 import Intro from "./sections/Intro";
 import TransicionNarrativa from "./components/TransicionNarrativa";
 import EstadisticaDestacada from "./components/EstadisticaDestacada";
+import MenuInteractivo from "./components/MenuInteractivo";
 import "./styles/global.css";
 
 // Lazy loading de secciones pesadas
@@ -340,6 +341,9 @@ const App = () => {
 
   return (
     <div className="contenedor-principal">
+      {/* Menú interactivo con música */}
+      <MenuInteractivo />
+
       <section data-seccion="intro">
         <Intro />
       </section>

@@ -508,3 +508,53 @@
 .conclusion-avanzado .icono-conclusion-seccion {
   color: #ffd93d;
 }
+
+/* Estilos para slider de cantidad de puntos */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #00d9ff, #ff00ff);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d9ff, #ff00ff);
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: 0 0 15px rgba(0, 217, 255, 0.5), 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 25px rgba(255, 0, 255, 0.6), 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d9ff, #ff00ff);
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: 0 0 15px rgba(0, 217, 255, 0.5), 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 25px rgba(255, 0, 255, 0.6), 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
