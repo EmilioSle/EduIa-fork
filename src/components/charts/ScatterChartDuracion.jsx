@@ -254,7 +254,6 @@ const ScatterChartDuracion = memo(({ datos, onReady }) => {
       }
     });
 
->>>>>>> 6f9c37a836592443536359a8fdd8c5bace3c1191
     // Estadísticas en tiempo real
     const statsBox = controles.append("div")
       .style("margin-left", "auto")
